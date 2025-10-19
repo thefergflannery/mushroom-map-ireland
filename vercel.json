@@ -8,11 +8,5 @@
       "path": "/api/cron/cache-warm",
       "schedule": "0 3 * * *"
     }
-  ],
-  "env": {
-    "DATABASE_URL": "@database-url",
-    "NEXTAUTH_SECRET": "@nextauth-secret",
-    "NEXTAUTH_URL": "@nextauth-url"
-  }
+  ]
 }
-
