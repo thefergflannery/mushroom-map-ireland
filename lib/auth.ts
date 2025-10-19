@@ -5,7 +5,7 @@ import { prisma } from './prisma';
 import { generateHandle } from './utils';
 
 export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma) as any,
+  adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -23,15 +23,17 @@ export const authOptions: NextAuthConfig = {
           select: { role: true, handle: true, reputation: true },
         });
         
-        if (dbUser) {
-          (session.user as any).role = dbUser.role;
-          (session.user as any).handle = dbUser.handle;
-          (session.user as any).reputation = dbUser.reputation;
+        if (dbUser && session.user) {
+          Object.assign(session.user, {
+            role: dbUser.role,
+            handle: dbUser.handle,
+            reputation: dbUser.reputation,
+          });
         }
       }
       return session;
     },
-    async signIn({ user, account }) {
+    async signIn({ user }) {
       if (!user.email) return false;
       
       // Create user if doesn't exist

@@ -3,17 +3,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { prisma } from '@/lib/prisma';
-import dynamic from 'next/dynamic';
-
-// Dynamic import to avoid SSR issues with MapLibre
-const MushroomMap = dynamic(() => import('@/components/map/mushroom-map'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-muted">
-      <p className="text-muted-foreground">Loading map...</p>
-    </div>
-  ),
-});
+import MapClient from '@/components/map/map-client';
 
 async function getRecentObservations() {
   const observations = await prisma.observation.findMany({
@@ -90,7 +80,7 @@ export default async function HomePage() {
                 </div>
               }
             >
-              <MushroomMap observations={mapObservations} />
+              <MapClient observations={mapObservations} />
             </Suspense>
           </div>
 
