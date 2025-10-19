@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
+import { UserMenu } from '@/components/auth/user-menu';
 import MapClient from '@/components/map/map-client';
 
 async function getRecentObservations() {
@@ -35,7 +37,10 @@ async function getRecentObservations() {
 }
 
 export default async function HomePage() {
-  const observations = await getRecentObservations();
+  const [observations, session] = await Promise.all([
+    getRecentObservations(),
+    auth(),
+  ]);
 
   // Transform for map component
   const mapObservations = observations.map((obs) => ({
@@ -67,11 +72,22 @@ export default async function HomePage() {
               <Link href="/glossary" className="text-sm font-medium text-gray-700 hover:text-forest-700 transition-colors">
                 Glossary
               </Link>
-              <Link href="/observe">
-                <Button size="lg" className="bg-forest-600 hover:bg-forest-700">
-                  Add a Find
-                </Button>
-              </Link>
+              {session?.user ? (
+                <>
+                  <Link href="/observe">
+                    <Button size="lg" className="bg-forest-600 hover:bg-forest-700">
+                      Add a Find
+                    </Button>
+                  </Link>
+                  <UserMenu user={session.user} />
+                </>
+              ) : (
+                <Link href="/auth/signin">
+                  <Button size="lg" className="bg-forest-600 hover:bg-forest-700">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
             </nav>
           </div>
         </div>
