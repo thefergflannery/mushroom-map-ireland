@@ -1,168 +1,292 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { UploadForm } from '@/components/observe/upload-form';
+import { LocationPicker } from '@/components/observe/location-picker';
 
-export default async function ObservePage() {
-  const session = await auth();
+export default function ObservePage() {
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [photoKey, setPhotoKey] = useState('');
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [privacyLevel, setPrivacyLevel] = useState<'EXACT' | 'GRID_1KM' | 'GRID_10KM'>('GRID_1KM');
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  if (!session?.user) {
-    redirect('/api/auth/signin?callbackUrl=/observe');
-  }
+  const handleImageUploaded = (url: string, key: string) => {
+    setPhotoUrl(url);
+    setPhotoKey(key);
+    setStep(2);
+  };
+
+  const handleLocationSelect = (lat: number, lng: number) => {
+    setLocation({ lat, lng });
+  };
+
+  const handleSubmit = async () => {
+    if (!photoUrl || !location) {
+      setError('Please complete all required steps');
+      return;
+    }
+
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/observations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          photoUrl,
+          photoKey,
+          lat: location.lat,
+          lng: location.lng,
+          privacyLevel,
+          notes: notes.trim() || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create observation');
+      }
+
+      const data = await response.json();
+      
+      // Redirect to the new observation
+      router.push(`/observation/${data.data.id}`);
+    } catch (err: any) {
+      setError(err.message || 'Failed to submit observation. Please try again.');
+      console.error('Submit error:', err);
+      setSubmitting(false);
+    }
+  };
+
+  const canProceedToStep3 = photoUrl && location;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-white to-green-50/30">
       {/* Header */}
-      <header className="border-b bg-white">
+      <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
             <Button variant="ghost">← Cancel</Button>
           </Link>
-          <h1 className="text-2xl font-bold">Add Observation</h1>
+          <h1 className="text-2xl font-bold text-forest-700">Add Observation</h1>
           <div className="w-32"></div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-3xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload Your Find</CardTitle>
-            <CardDescription>
-              Share your mushroom observation with the community. Your photo and location will help build Ireland's
-              fungal map.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Step 1: Upload Photo */}
-            <div className="space-y-3">
-              <h3 className="font-semibold flex items-center gap-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-forest-100 text-forest-700 text-sm">
-                  1
-                </span>
-                Upload Photo
-              </h3>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-forest-500 transition-colors cursor-pointer">
-                <div className="space-y-2">
-                  <div className="text-4xl">📷</div>
-                  <p className="font-medium">Click to upload or drag and drop</p>
-                  <p className="text-sm text-muted-foreground">PNG, JPG up to 10MB</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Tip: Take clear photos showing the cap, gills/pores, stem, and habitat context.
-              </p>
+        {/* Progress Steps */}
+        <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center gap-2">
+            <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 1 ? 'bg-forest-600 text-white' : 'bg-gray-200 text-gray-600'} font-semibold`}>
+              {photoUrl ? '✓' : '1'}
             </div>
+            <div className={`w-16 h-1 ${step >= 2 ? 'bg-forest-600' : 'bg-gray-200'}`}></div>
+            <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 2 ? 'bg-forest-600 text-white' : 'bg-gray-200 text-gray-600'} font-semibold`}>
+              {location ? '✓' : '2'}
+            </div>
+            <div className={`w-16 h-1 ${step >= 3 ? 'bg-forest-600' : 'bg-gray-200'}`}></div>
+            <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 3 ? 'bg-forest-600 text-white' : 'bg-gray-200 text-gray-600'} font-semibold`}>
+              3
+            </div>
+          </div>
+        </div>
 
-            {/* Step 2: Location */}
-            <div className="space-y-3">
-              <h3 className="font-semibold flex items-center gap-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-forest-100 text-forest-700 text-sm">
-                  2
-                </span>
-                Mark Location
-              </h3>
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <p className="text-sm text-muted-foreground mb-3">
-                  Click on the map or use your current location
-                </p>
-                <div className="h-64 bg-gray-200 rounded flex items-center justify-center text-muted-foreground">
-                  Map placeholder (MapLibre would go here)
-                </div>
+        {/* Step 1: Upload Photo */}
+        {step === 1 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-3xl">📸</span>
+                Step 1: Upload Photo
+              </CardTitle>
+              <CardDescription>
+                Take or upload a clear photo of the mushroom showing key identification features
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <UploadForm onImageUploaded={handleImageUploaded} />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 2: Mark Location */}
+        {step === 2 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-3xl">📍</span>
+                Step 2: Mark Location
+              </CardTitle>
+              <CardDescription>
+                Click on the map or use your device location (privacy-protected)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <LocationPicker
+                onLocationSelect={handleLocationSelect}
+                initialLocation={location || undefined}
+              />
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  className="flex-1"
+                >
+                  ← Back
+                </Button>
+                <Button
+                  onClick={() => setStep(3)}
+                  disabled={!location}
+                  className="flex-1 bg-forest-600 hover:bg-forest-700"
+                >
+                  Continue →
+                </Button>
               </div>
+            </CardContent>
+          </Card>
+        )}
 
-              {/* Privacy level selector */}
-              <div className="space-y-2">
+        {/* Step 3: Privacy & Notes */}
+        {step === 3 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-3xl">✍️</span>
+                Step 3: Privacy & Details
+              </CardTitle>
+              <CardDescription>
+                Choose your privacy level and add optional notes
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Privacy Level */}
+              <div className="space-y-3">
                 <label className="text-sm font-medium">Privacy Level</label>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 p-3 border rounded cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="privacy" value="GRID_1KM" defaultChecked />
-                    <div>
-                      <p className="font-medium text-sm">1km Grid (Recommended)</p>
-                      <p className="text-xs text-muted-foreground">
+                  <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors ${privacyLevel === 'GRID_1KM' ? 'border-forest-600 bg-forest-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <input
+                      type="radio"
+                      name="privacy"
+                      value="GRID_1KM"
+                      checked={privacyLevel === 'GRID_1KM'}
+                      onChange={(e) => setPrivacyLevel(e.target.value as any)}
+                      className="mt-1"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium">1km Grid (Recommended)</p>
+                      <p className="text-sm text-gray-600">
                         Location shown within 1km grid square
                       </p>
                     </div>
                   </label>
-                  <label className="flex items-center gap-2 p-3 border rounded cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="privacy" value="GRID_10KM" />
-                    <div>
-                      <p className="font-medium text-sm">10km Grid</p>
-                      <p className="text-xs text-muted-foreground">
-                        Location shown within 10km grid square (more private)
+
+                  <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors ${privacyLevel === 'GRID_10KM' ? 'border-forest-600 bg-forest-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <input
+                      type="radio"
+                      name="privacy"
+                      value="GRID_10KM"
+                      checked={privacyLevel === 'GRID_10KM'}
+                      onChange={(e) => setPrivacyLevel(e.target.value as any)}
+                      className="mt-1"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium">10km Grid (More Private)</p>
+                      <p className="text-sm text-gray-600">
+                        Location shown within 10km grid square
                       </p>
                     </div>
                   </label>
-                  <label className="flex items-center gap-2 p-3 border rounded cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="privacy" value="EXACT" />
-                    <div>
-                      <p className="font-medium text-sm">Exact Location</p>
-                      <p className="text-xs text-muted-foreground">
+
+                  <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors ${privacyLevel === 'EXACT' ? 'border-forest-600 bg-forest-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <input
+                      type="radio"
+                      name="privacy"
+                      value="EXACT"
+                      checked={privacyLevel === 'EXACT'}
+                      onChange={(e) => setPrivacyLevel(e.target.value as any)}
+                      className="mt-1"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium">Exact Location</p>
+                      <p className="text-sm text-gray-600">
                         Show precise coordinates (not recommended for sensitive species)
                       </p>
                     </div>
                   </label>
                 </div>
               </div>
-            </div>
 
-            {/* Step 3: Notes */}
-            <div className="space-y-3">
-              <h3 className="font-semibold flex items-center gap-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-forest-100 text-forest-700 text-sm">
-                  3
-                </span>
-                Add Notes (Optional)
-              </h3>
-              <textarea
-                className="w-full min-h-[100px] p-3 border rounded-lg resize-y"
-                placeholder="Describe the habitat, nearby trees, smell, or any other details that might help with identification..."
-              />
-            </div>
+              {/* Notes */}
+              <div className="space-y-2">
+                <label htmlFor="notes" className="text-sm font-medium">
+                  Notes (Optional)
+                </label>
+                <textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg resize-y focus:ring-2 focus:ring-forest-600 focus:border-transparent"
+                  placeholder="Describe the habitat, nearby trees, smell, size, or any other details that might help with identification..."
+                  maxLength={2000}
+                />
+                <p className="text-xs text-gray-500">{notes.length} / 2000 characters</p>
+              </div>
 
-            {/* Step 4: AI Suggestion */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardHeader>
-                <CardTitle className="text-base">🤖 Get AI Suggestions</CardTitle>
-                <CardDescription>
-                  Optional: Let AI analyze your photo and suggest possible identifications. Remember, AI is assistive,
-                  not authoritative - community consensus determines the final ID.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="outline" className="w-full">
-                  Analyze with AI
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(2)}
+                  disabled={submitting}
+                  className="flex-1"
+                >
+                  ← Back
                 </Button>
-              </CardContent>
-            </Card>
-
-            {/* Submit */}
-            <div className="flex gap-3 pt-4 border-t">
-              <Link href="/" className="flex-1">
-                <Button variant="outline" className="w-full">
-                  Cancel
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!canProceedToStep3 || submitting}
+                  className="flex-1 bg-forest-600 hover:bg-forest-700"
+                  size="lg"
+                >
+                  {submitting ? 'Submitting...' : 'Submit Observation'}
                 </Button>
-              </Link>
-              <Button className="flex-1" size="lg">
-                Submit Observation
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Guidelines */}
-        <Card className="mt-6">
+        <Card className="mt-6 bg-blue-50 border-blue-200">
           <CardHeader>
             <CardTitle className="text-lg">Photography Tips</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+          <CardContent className="space-y-2 text-sm">
+            <ul className="list-disc list-inside space-y-1 text-gray-700">
               <li>Take multiple photos from different angles</li>
               <li>Include the cap top, underside (gills/pores), and stem</li>
               <li>Show the base of the mushroom and surrounding habitat</li>
               <li>Use natural lighting when possible</li>
-              <li>Include a size reference if available (coin, finger, etc.)</li>
-              <li>Avoid picking the mushroom unless necessary for ID</li>
+              <li>Include a size reference if available</li>
+              <li>Avoid picking the mushroom unless necessary</li>
             </ul>
           </CardContent>
         </Card>
@@ -170,4 +294,3 @@ export default async function ObservePage() {
     </div>
   );
 }
-
