@@ -6,8 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 
+interface ExifLocation {
+  lat?: number;
+  lng?: number;
+  timestamp?: Date;
+}
+
 interface UploadFormProps {
-  onImageUploaded?: (url: string, key: string) => void;
+  onImageUploaded?: (url: string, key: string, exif: ExifLocation | null) => void;
 }
 
 export function UploadForm({ onImageUploaded }: UploadFormProps) {
@@ -65,7 +71,7 @@ export function UploadForm({ onImageUploaded }: UploadFormProps) {
       const data = await response.json();
       
       if (onImageUploaded) {
-        onImageUploaded(data.data.url, data.data.key);
+        onImageUploaded(data.data.url, data.data.key, data.data.exif || null);
       }
     } catch (err) {
       setError('Failed to upload image. Please try again.');

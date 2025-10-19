@@ -18,10 +18,22 @@ export default function ObservePage() {
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [exifDetected, setExifDetected] = useState(false);
 
-  const handleImageUploaded = (url: string, key: string) => {
+  const handleImageUploaded = (url: string, key: string, exif: any) => {
     setPhotoUrl(url);
     setPhotoKey(key);
+    
+    // Auto-populate location from EXIF if available
+    if (exif?.lat && exif?.lng) {
+      // Validate coordinates are in Ireland bounds
+      if (exif.lat >= 51 && exif.lat <= 56 && exif.lng >= -11 && exif.lng <= -5) {
+        setLocation({ lat: exif.lat, lng: exif.lng });
+        setExifDetected(true);
+        console.log('GPS location extracted from photo:', exif.lat, exif.lng);
+      }
+    }
+    
     setStep(2);
   };
 
@@ -134,6 +146,18 @@ export default function ObservePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {exifDetected && location && (
+                <div className="p-3 bg-green-50 border border-green-300 rounded-lg text-sm">
+                  <p className="font-medium text-green-900 mb-1">📍 Location detected from photo</p>
+                  <p className="text-green-700">
+                    GPS coordinates found in image metadata: {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                  </p>
+                  <p className="text-xs text-green-600 mt-1">
+                    You can adjust the location on the map if needed
+                  </p>
+                </div>
+              )}
+              
               <LocationPicker
                 onLocationSelect={handleLocationSelect}
                 initialLocation={location || undefined}
