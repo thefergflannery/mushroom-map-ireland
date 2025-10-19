@@ -40,37 +40,46 @@ export default function MushroomMap({
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: {
-        version: 8,
-        sources: {
-          'carto-light': {
-            type: 'raster',
-            tiles: [
-              'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-              'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-            ],
-            tileSize: 256,
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    console.log('Initializing map...');
+
+    try {
+      map.current = new maplibregl.Map({
+        container: mapContainer.current,
+        style: {
+          version: 8,
+          sources: {
+            'carto-light': {
+              type: 'raster',
+              tiles: [
+                'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+              ],
+              tileSize: 256,
+              attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            },
           },
+          layers: [
+            {
+              id: 'carto-light-layer',
+              type: 'raster',
+              source: 'carto-light',
+              minzoom: 0,
+              maxzoom: 22,
+            },
+          ],
         },
-        layers: [
-          {
-            id: 'carto-light-layer',
-            type: 'raster',
-            source: 'carto-light',
-            minzoom: 0,
-            maxzoom: 22,
-          },
-        ],
-      },
-      center: initialCenter,
-      zoom: initialZoom,
-      attributionControl: true,
-    });
+        center: initialCenter,
+        zoom: initialZoom,
+        attributionControl: true,
+      });
+
+      console.log('Map created successfully');
+    } catch (error) {
+      console.error('Error creating map:', error);
+      return;
+    }
 
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
@@ -88,7 +97,12 @@ export default function MushroomMap({
     map.current.keyboard.enable();
 
     map.current.on('load', () => {
+      console.log('Map loaded');
       setLoaded(true);
+    });
+
+    map.current.on('error', (e) => {
+      console.error('Map error:', e);
     });
 
     return () => {
@@ -100,6 +114,8 @@ export default function MushroomMap({
   // Update markers when observations change
   useEffect(() => {
     if (!map.current || !loaded) return;
+
+    console.log(`Adding ${observations.length} markers to map`);
 
     // Remove existing markers
     markers.current.forEach((marker) => marker.remove());
