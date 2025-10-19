@@ -1,0 +1,261 @@
+// Mushroom Map Ireland - Prisma Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  TRUSTED
+  MOD
+  BIOLOGIST
+  ADMIN
+}
+
+enum Edibility {
+  CHOICE
+  EDIBLE
+  CAUTION
+  TOXIC
+  DEADLY
+  UNKNOWN
+}
+
+enum PrivacyLevel {
+  EXACT
+  GRID_1KM
+  GRID_10KM
+}
+
+enum ObsStatus {
+  NEEDS_ID
+  HAS_CANDIDATES
+  CONSENSUS
+}
+
+enum IdMethod {
+  AI
+  HUMAN
+}
+
+model User {
+  id              String           @id @default(cuid())
+  handle          String           @unique
+  email           String           @unique
+  role            Role             @default(USER)
+  reputation      Int              @default(0)
+  image           String?
+  emailVerified   DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  observations    Observation[]
+  votes           Vote[]
+  identifications Identification[]
+  comments        Comment[]
+  accounts        Account[]
+  sessions        Session[]
+
+  @@index([email])
+  @@index([handle])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Species {
+  id              String           @id @default(cuid())
+  latinName       String           @unique
+  commonEn        String
+  commonGa        String?
+  slug            String           @unique
+  edibility       Edibility        @default(UNKNOWN)
+  season          String?
+  habitat         String?
+  keyTraits       String?
+  lookalikeIds    String[]         @default([])
+  sensitive       Boolean          @default(false)
+  heroImageUrl    String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  identifications Identification[]
+
+  @@index([slug])
+  @@index([sensitive])
+}
+
+model Observation {
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lat             Float
+  lng             Float
+  grid1km         String
+  grid10km        String?
+  accuracyM       Int?
+  photoUrl        String
+  photoKey        String?
+  notes           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  privacyLevel    PrivacyLevel     @default(GRID_1KM)
+  status          ObsStatus        @default(NEEDS_ID)
+  identifications Identification[]
+  comments        Comment[]
+  flags           Flag[]
+  tags            ObservationTag[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([grid1km])
+  @@index([createdAt])
+}
+
+model Identification {
+  id             String   @id @default(cuid())
+  observationId  String
+  observation    Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  proposerUserId String?
+  proposer       User?    @relation(fields: [proposerUserId], references: [id], onDelete: SetNull)
+  speciesId      String?
+  species        Species? @relation(fields: [speciesId], references: [id], onDelete: SetNull)
+  method         IdMethod
+  confidence     Float?
+  rationale      String?
+  isConsensus    Boolean  @default(false)
+  score          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  votes          Vote[]
+
+  @@index([observationId])
+  @@index([proposerUserId])
+  @@index([speciesId])
+  @@index([isConsensus])
+}
+
+model Vote {
+  id               String         @id @default(cuid())
+  identificationId String
+  identification   Identification @relation(fields: [identificationId], references: [id], onDelete: Cascade)
+  voterUserId      String
+  voter            User           @relation(fields: [voterUserId], references: [id], onDelete: Cascade)
+  value            Int
+  createdAt        DateTime       @default(now())
+
+  @@unique([identificationId, voterUserId])
+  @@index([identificationId])
+  @@index([voterUserId])
+}
+
+model Comment {
+  id            String      @id @default(cuid())
+  observationId String
+  observation   Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  body          String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([observationId])
+  @@index([userId])
+}
+
+model Tag {
+  id           String           @id @default(cuid())
+  name         String           @unique
+  observations ObservationTag[]
+
+  @@index([name])
+}
+
+model ObservationTag {
+  observationId String
+  tagId         String
+  observation   Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  tag           Tag         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([observationId, tagId])
+  @@index([observationId])
+  @@index([tagId])
+}
+
+model Glossary {
+  id       String   @id @default(cuid())
+  termGa   String
+  variants String[] @default([])
+  meaning  String
+  regions  String[] @default([])
+  sources  String[] @default([])
+  audioUrl String?
+
+  @@index([termGa])
+}
+
+model Flag {
+  id            String      @id @default(cuid())
+  observationId String
+  observation   Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  reason        String
+  status        String      @default("open")
+  reportedById  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([observationId])
+  @@index([status])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  target    String
+  targetId  String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
