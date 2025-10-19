@@ -7,6 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { formatDate, formatRelativeTime } from '@/lib/utils';
 import { getDisplayCoordinates } from '@/lib/geo/grid';
+import { VoteButtons } from '@/components/observation/vote-buttons';
+import { IdentificationForm } from '@/components/observation/identification-form';
+import { CommentForm } from '@/components/observation/comment-form';
 
 interface PageProps {
   params: { id: string };
@@ -15,6 +18,18 @@ interface PageProps {
 export default async function ObservationPage({ params }: PageProps) {
   const session = await auth();
   const viewerRole = session?.user ? (session.user as any).role : undefined;
+
+  // Get all species for identification form
+  const allSpecies = await prisma.species.findMany({
+    orderBy: { latinName: 'asc' },
+    select: {
+      id: true,
+      latinName: true,
+      commonEn: true,
+      commonGa: true,
+      edibility: true,
+    },
+  });
 
   const observation = await prisma.observation.findUnique({
     where: { id: params.id },
@@ -145,10 +160,16 @@ export default async function ObservationPage({ params }: PageProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {session?.user && (
+                  <IdentificationForm
+                    observationId={observation.id}
+                    availableSpecies={allSpecies}
+                  />
+                )}
+                
                 {observation.identifications.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <p>No identifications yet. Be the first to suggest one!</p>
-                    <Button className="mt-4">Propose Identification</Button>
                   </div>
                 ) : (
                   observation.identifications.map((identification) => (
@@ -209,19 +230,20 @@ export default async function ObservationPage({ params }: PageProps) {
                         <p className="text-sm mb-3">{identification.rationale}</p>
                       )}
 
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline">
-                            👍 Agree
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            👎 Disagree
-                          </Button>
-                          <span className="text-sm text-muted-foreground">
-                            Score: {identification.score} ({identification._count.votes} votes)
-                          </span>
+                      {session?.user && identification.proposerUserId !== session.user.id ? (
+                        <VoteButtons
+                          identificationId={identification.id}
+                          currentVote={
+                            identification.votes.find((v) => v.voterUserId === session.user.id)?.value || null
+                          }
+                          voteCount={identification._count.votes}
+                          score={identification.score}
+                        />
+                      ) : (
+                        <div className="text-sm text-muted-foreground">
+                          Score: {identification.score} ({identification._count.votes} vote{identification._count.votes !== 1 ? 's' : ''})
                         </div>
-                      </div>
+                      )}
                     </div>
                   ))
                 )}
@@ -261,6 +283,12 @@ export default async function ObservationPage({ params }: PageProps) {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+                
+                {session?.user && observation.comments.length > 0 && (
+                  <div className="pt-4 border-t">
+                    <CommentForm observationId={observation.id} />
                   </div>
                 )}
               </CardContent>
@@ -316,27 +344,29 @@ export default async function ObservationPage({ params }: PageProps) {
               </CardContent>
             </Card>
 
-            {/* Actions */}
-            {session?.user && (
+            {/* Add Comment */}
+            {session?.user && observation.comments.length === 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Actions</CardTitle>
+                  <CardTitle className="text-lg">Add Comment</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button className="w-full">Propose Identification</Button>
-                  <Button variant="outline" className="w-full">
-                    Add Comment
-                  </Button>
-                  {observation.userId === session.user.id && (
-                    <>
-                      <Button variant="outline" className="w-full">
-                        Edit
-                      </Button>
-                      <Button variant="destructive" className="w-full">
-                        Delete
-                      </Button>
-                    </>
-                  )}
+                <CardContent>
+                  <CommentForm observationId={observation.id} />
+                </CardContent>
+              </Card>
+            )}
+            
+            {!session?.user && (
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="py-6 text-center">
+                  <p className="text-sm text-gray-700 mb-3">
+                    Sign in to vote, propose identifications, and comment
+                  </p>
+                  <Link href="/auth/signin">
+                    <Button className="bg-forest-600 hover:bg-forest-700">
+                      Sign In
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             )}
