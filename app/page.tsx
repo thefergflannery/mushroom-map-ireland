@@ -73,7 +73,7 @@ export default async function HomePage() {
         {/* Hero Background Image */}
         <div className="absolute inset-0">
           <img
-            src="/hero1.jpg"
+            src="/hero1-optimized.jpg"
             alt="Irish forest mushrooms"
             className="w-full h-full object-cover"
           />
