@@ -140,16 +140,105 @@ export default async function HomePage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Map Ireland's Mushrooms
-          </h1>
-          <p className="text-gray-600 max-w-3xl">
-            Contribute to Ireland's fungal biodiversity database. Photograph mushrooms, get AI-assisted identification, 
-            and help scientists understand our ecosystem.
-          </p>
-        </div>
+        {/* Map of Life-style Hero */}
+        <section className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900 text-white mb-10">
+          <div className="px-6 py-12 sm:px-10 sm:py-16">
+            <div className="max-w-3xl">
+              <h1 className="text-4xl sm:text-5xl font-bold mb-4">Explore the Map</h1>
+              <p className="text-emerald-200/90 max-w-2xl mb-8">
+                Access comprehensive, privacy-safe data on mushroom species and habitats across Ireland.
+              </p>
+              <div className="flex flex-wrap gap-3 mb-8">
+                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3">
+                  <p className="text-sm text-emerald-200">Species</p>
+                  <p className="text-2xl font-semibold">{stats.speciesCount}</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3">
+                  <p className="text-sm text-emerald-200">Observations</p>
+                  <p className="text-2xl font-semibold">{stats.observationCount}</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3">
+                  <p className="text-sm text-emerald-200">Contributors</p>
+                  <p className="text-2xl font-semibold">{stats.userCount}</p>
+                </div>
+              </div>
+              <Link href="/observe">
+                <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                  Get started
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Cards: Species / Regions / Patterns */}
+        <section className="mb-10">
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="bg-white/90">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-xl">🧬</span> Species
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-4">Explore profiles, edibility, lookalikes, and identification tips.</p>
+                <Link href="/species"><Button size="sm">Open guide</Button></Link>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/90">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-xl">🗺️</span> Regions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-4">Browse observations by county or protected areas.</p>
+                <Link href="/map"><Button size="sm" variant="outline">Open map</Button></Link>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/90">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-xl">📈</span> Patterns
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-4">Coming soon: seasonal trends and biodiversity indicators.</p>
+                <Button size="sm" disabled>Coming soon</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Indicators (accordion) */}
+        <section className="mb-10">
+          <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-white p-6">
+            <h2 className="text-xl font-semibold mb-4">Biodiversity Indicators</h2>
+            <div className="space-y-3">
+              <details className="group border rounded-md p-4 bg-white">
+                <summary className="flex cursor-pointer items-center justify-between font-medium">
+                  Species Protection Index
+                  <span className="text-gray-400 group-open:rotate-45 transition">+</span>
+                </summary>
+                <p className="mt-2 text-sm text-gray-600">Tracks how well important species are represented in protected areas.</p>
+              </details>
+              <details className="group border rounded-md p-4 bg-white">
+                <summary className="flex cursor-pointer items-center justify-between font-medium">
+                  Species Habitat Index
+                  <span className="text-gray-400 group-open:rotate-45 transition">+</span>
+                </summary>
+                <p className="mt-2 text-sm text-gray-600">Signals habitat suitability change across regions.</p>
+              </details>
+              <details className="group border rounded-md p-4 bg-white">
+                <summary className="flex cursor-pointer items-center justify-between font-medium">
+                  Species Information Index
+                  <span className="text-gray-400 group-open:rotate-45 transition">+</span>
+                </summary>
+                <p className="mt-2 text-sm text-gray-600">Measures data completeness and certainty for species.</p>
+              </details>
+            </div>
+          </div>
+        </section>
 
         {/* Interactive Map */}
         <Card className="mb-8">
@@ -185,6 +274,15 @@ export default async function HomePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Core dashboard media block */}
+        <section className="mb-12">
+          <h2 className="text-xl font-semibold mb-3">Core Dashboard</h2>
+          <div className="aspect-video w-full rounded-xl overflow-hidden bg-black/5 border">
+            {/* Placeholder: swap for real video or screenshot */}
+            <div className="w-full h-full flex items-center justify-center text-gray-500">Dashboard preview</div>
+          </div>
+        </section>
 
         {/* Safety Banner */}
         <div className="mb-8">
