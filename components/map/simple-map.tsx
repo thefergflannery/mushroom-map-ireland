@@ -31,6 +31,7 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
       
       map.current = new maplibregl.Map({
         container: mapContainer.current,
+        // Stable Carto Positron GL style (privacy-safe, fast)
         style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
         center: [-8.2439, 53.4129],
         zoom: 6.5,
@@ -40,6 +41,8 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
 
       map.current.on('load', () => {
         console.log('Map loaded successfully');
+        // Ensure correct sizing when the map first loads
+        map.current?.resize();
         
         // Add markers
         if (observations.length > 0) {
@@ -79,6 +82,19 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
     };
   }, [observations]);
 
+  // Resize on mount and when container size changes (e.g., tab switch)
+  useEffect(() => {
+    const id = setInterval(() => {
+      map.current?.resize();
+    }, 500);
+    // Stop aggressive resizing after initial seconds
+    const stop = setTimeout(() => clearInterval(id), 3000);
+    return () => {
+      clearInterval(id);
+      clearTimeout(stop);
+    };
+  }, []);
+
   if (error) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gray-100">
@@ -97,7 +113,7 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
   }
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative min-h-[400px]">
       <div ref={mapContainer} className="absolute inset-0" />
       
       {observations.length === 0 && (

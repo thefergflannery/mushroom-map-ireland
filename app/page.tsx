@@ -7,6 +7,7 @@ import { auth } from '@/lib/auth';
 import { UserMenu } from '@/components/auth/user-menu';
 import { TopSpecies } from '@/components/home/top-species';
 import { MobileNav } from '@/components/ui/mobile-nav';
+import { SafetyBanner } from '@/components/common/safety-banner';
 import MapClient from '@/components/map/map-client';
 
 async function getRecentObservations() {
@@ -184,6 +185,11 @@ export default async function HomePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Safety Banner */}
+        <div className="mb-8">
+          <SafetyBanner />
+        </div>
 
         {/* Top Species */}
         <Suspense fallback={<div className="text-center py-8"><p className="text-gray-500">Loading species...</p></div>}>

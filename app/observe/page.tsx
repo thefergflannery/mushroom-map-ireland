@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { UploadForm } from '@/components/observe/upload-form';
 import { LocationPicker } from '@/components/observe/location-picker';
 import { AISuggestions } from '@/components/observe/ai-suggestions';
+import { SafetyBanner } from '@/components/common/safety-banner';
 
 export default function ObservePage() {
   const router = useRouter();
@@ -305,6 +306,11 @@ export default function ObservePage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Safety */}
+        <div className="mt-6">
+          <SafetyBanner />
+        </div>
 
         {/* Guidelines */}
         <Card className="mt-6 bg-blue-50 border-blue-200">
