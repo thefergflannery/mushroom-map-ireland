@@ -69,58 +69,69 @@ export default async function HomePage() {
       </header>
 
       {/* Hero Section - Urban ReLeaf Style */}
-      <section className="relative bg-gradient-to-br from-forest-50 via-green-50 to-emerald-50 py-20 sm:py-32 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
+      <section className="relative py-20 sm:py-32 overflow-hidden">
+        {/* Hero Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="/hero1.jpg"
+            alt="Irish forest mushrooms"
+            className="w-full h-full object-cover"
+          />
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/30 to-black/50"></div>
+        </div>
+        
+        {/* Background Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23047857' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}/>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
-            <Badge className="mb-6 bg-forest-600 text-white px-4 py-2 text-sm">
+            <Badge className="mb-6 bg-white/90 text-forest-700 px-4 py-2 text-sm backdrop-blur-sm">
               🇮🇪 Ireland's First Citizen Science Mushroom Platform
             </Badge>
 
             {/* Main Heading */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
               Discover Ireland's
-              <span className="block text-forest-600 mt-2">Fungal Biodiversity</span>
+              <span className="block text-green-300 mt-2">Fungal Biodiversity</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
               Join our community of citizen scientists mapping mushrooms across Ireland. 
-              <strong className="text-forest-700"> Privacy-first, AI-assisted, research-grade.</strong>
+              <strong className="text-green-200"> Privacy-first, AI-assisted, research-grade.</strong>
             </p>
 
             {/* Stats */}
             <div className="flex flex-wrap justify-center gap-8 mb-10">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-forest-700">{stats.observationCount}+</div>
-                <div className="text-sm text-gray-600 mt-1">Observations</div>
+              <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg px-6 py-4">
+                <div className="text-4xl font-bold text-white">{stats.observationCount}+</div>
+                <div className="text-sm text-white/80 mt-1">Observations</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-forest-700">{stats.speciesCount}</div>
-                <div className="text-sm text-gray-600 mt-1">Species</div>
+              <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg px-6 py-4">
+                <div className="text-4xl font-bold text-white">{stats.speciesCount}</div>
+                <div className="text-sm text-white/80 mt-1">Species</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-forest-700">{stats.userCount}+</div>
-                <div className="text-sm text-gray-600 mt-1">Contributors</div>
+              <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg px-6 py-4">
+                <div className="text-4xl font-bold text-white">{stats.userCount}+</div>
+                <div className="text-sm text-white/80 mt-1">Contributors</div>
               </div>
             </div>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/map">
-                <Button size="lg" className="bg-forest-600 hover:bg-forest-700 text-lg px-8 py-6 h-auto">
+                <Button size="lg" className="bg-white text-forest-700 hover:bg-gray-100 text-lg px-8 py-6 h-auto shadow-xl">
                   Explore the Map →
                 </Button>
               </Link>
               <Link href="/observe">
-                <Button size="lg" variant="outline" className="border-forest-600 text-forest-700 hover:bg-forest-50 text-lg px-8 py-6 h-auto">
+                <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6 h-auto backdrop-blur-sm">
                   Submit an Observation
                 </Button>
               </Link>
