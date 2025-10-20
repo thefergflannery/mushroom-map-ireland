@@ -4,108 +4,284 @@
 
 @layer base {
   :root {
+    /* Modern Color Palette - Accessible & Nature-inspired */
+    --forest-900: 20 44 33;      /* Deep forest green - primary dark */
+    --forest-800: 25 55 41;      /* Dark green */
+    --forest-700: 34 87 64;      /* Primary green */
+    --forest-600: 42 108 79;     /* Medium green */
+    --forest-500: 52 168 83;     /* Bright green - primary */
+    --forest-400: 110 188 137;   /* Light green */
+    --forest-300: 163 210 178;   /* Pale green */
+    
+    --earth-900: 56 38 26;       /* Deep earth brown */
+    --earth-800: 92 64 51;       /* Dark brown */
+    --earth-700: 139 101 81;     /* Medium brown */
+    --earth-600: 181 142 120;    /* Light brown */
+    
+    --amber-600: 217 119 6;      /* Warm accent */
+    --amber-500: 245 158 11;     /* Bright amber */
+    
+    --sky-600: 2 132 199;        /* Cool accent */
+    --sky-500: 14 165 233;       /* Bright sky blue */
+    
+    /* Neutrals */
+    --slate-950: 2 6 23;         /* Almost black */
+    --slate-900: 15 23 42;       /* Very dark gray */
+    --slate-800: 30 41 59;       /* Dark gray */
+    --slate-700: 51 65 85;       /* Medium dark gray */
+    --slate-600: 71 85 105;      /* Medium gray */
+    --slate-500: 100 116 139;    /* Gray */
+    --slate-400: 148 163 184;    /* Light gray */
+    --slate-300: 203 213 225;    /* Very light gray */
+    --slate-200: 226 232 240;    /* Pale gray */
+    --slate-100: 241 245 249;    /* Off white */
+    --slate-50: 248 250 252;     /* Almost white */
+    
+    /* Semantic colors */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: var(--slate-900);
+    
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: var(--slate-900);
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 142 44% 34%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 142 44% 90%;
-    --accent-foreground: 142 44% 20%;
+    --popover-foreground: var(--slate-900);
+    
+    --primary: var(--forest-700);
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: var(--earth-700);
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: var(--slate-100);
+    --muted-foreground: var(--slate-600);
+    
+    --accent: var(--amber-500);
+    --accent-foreground: var(--slate-900);
+    
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142 44% 34%;
-    --radius: 0.5rem;
+    
+    --border: var(--slate-200);
+    --input: var(--slate-200);
+    --ring: var(--forest-700);
+    
+    --radius: 0.75rem;
   }
-
+  
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 142 44% 45%;
-    --primary-foreground: 240 10% 3.9%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 142 44% 45%;
+    --background: var(--slate-950);
+    --foreground: var(--slate-100);
+    
+    --card: var(--slate-900);
+    --card-foreground: var(--slate-100);
+    
+    --popover: var(--slate-900);
+    --popover-foreground: var(--slate-100);
+    
+    --primary: var(--forest-500);
+    --primary-foreground: var(--slate-950);
+    
+    --secondary: var(--earth-600);
+    --secondary-foreground: var(--slate-950);
+    
+    --muted: var(--slate-800);
+    --muted-foreground: var(--slate-400);
+    
+    --accent: var(--amber-500);
+    --accent-foreground: var(--slate-950);
+    
+    --border: var(--slate-800);
+    --input: var(--slate-800);
+    --ring: var(--forest-400);
   }
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
+  
   body {
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Typography Scale - Modern & Bold */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+  
+  h1 {
+    @apply text-5xl md:text-6xl lg:text-7xl leading-tight;
+    font-weight: 800;
+  }
+  
+  h2 {
+    @apply text-4xl md:text-5xl lg:text-6xl leading-tight;
+    font-weight: 700;
+  }
+  
+  h3 {
+    @apply text-3xl md:text-4xl leading-snug;
+    font-weight: 700;
+  }
+  
+  h4 {
+    @apply text-2xl md:text-3xl leading-snug;
+    font-weight: 600;
+  }
+  
+  h5 {
+    @apply text-xl md:text-2xl leading-snug;
+    font-weight: 600;
+  }
+  
+  h6 {
+    @apply text-lg md:text-xl leading-normal;
+    font-weight: 600;
+  }
+  
+  /* Body text */
+  p {
+    @apply text-base md:text-lg leading-relaxed;
+  }
+  
+  .lead {
+    @apply text-xl md:text-2xl leading-relaxed text-slate-600;
+  }
+  
+  .small {
+    @apply text-sm leading-relaxed;
+  }
+  
+  /* Skip to content link for accessibility */
+  .skip-to-content {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-forest-700 focus:text-white focus:rounded-lg;
   }
 }
 
-/* MapLibre GL styles */
-.maplibregl-map {
-  font-family: inherit;
+@layer components {
+  /* Photo overlay gradients */
+  .photo-overlay-dark {
+    @apply absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-900/50;
+  }
+  
+  .photo-overlay-light {
+    @apply absolute inset-0 bg-gradient-to-br from-white/90 via-white/70 to-white/50;
+  }
+  
+  .photo-overlay-green {
+    @apply absolute inset-0 bg-gradient-to-br from-forest-900/90 via-forest-800/70 to-forest-700/50;
+  }
+  
+  /* Modern card styles */
+  .card-modern {
+    @apply bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden;
+  }
+  
+  .card-photo {
+    @apply relative overflow-hidden rounded-2xl shadow-xl;
+  }
+  
+  /* Typography utilities */
+  .heading-display {
+    @apply text-5xl md:text-7xl font-extrabold tracking-tight;
+  }
+  
+  .heading-hero {
+    @apply text-4xl md:text-6xl font-bold tracking-tight;
+  }
+  
+  .heading-section {
+    @apply text-3xl md:text-5xl font-bold tracking-tight;
+  }
+  
+  /* Button styles */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-forest-700 hover:bg-forest-800 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-forest-900 bg-white hover:bg-slate-50 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105;
+  }
+  
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-white border-2 border-white hover:bg-white hover:text-forest-900 rounded-full transition-all duration-200;
+  }
+  
+  /* Section spacing */
+  .section {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+  
+  .section-sm {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+  
+  /* Container */
+  .container-modern {
+    @apply max-w-7xl mx-auto px-6 md:px-8 lg:px-12;
+  }
+  
+  /* Image effects */
+  .img-hover-zoom {
+    @apply transition-transform duration-700 hover:scale-110;
+  }
+  
+  .img-grayscale-hover {
+    @apply grayscale hover:grayscale-0 transition-all duration-500;
+  }
 }
 
-.maplibregl-ctrl-group button {
-  @apply focus:ring-2 focus:ring-ring focus:ring-offset-2;
+@layer utilities {
+  /* Text shadows for photography overlays */
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Glassmorphism */
+  .glass {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply backdrop-blur-md bg-slate-900/30 border border-slate-700/20;
+  }
 }
 
-.maplibregl-popup-content {
-  @apply rounded-lg shadow-lg;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
 }
 
-/* Accessibility: Skip to content */
-.skip-to-content {
-  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md;
+::-webkit-scrollbar-track {
+  background: rgb(var(--slate-100));
 }
 
-/* High contrast focus indicators */
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--forest-600));
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--forest-700));
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus visible styles for accessibility */
 *:focus-visible {
-  @apply outline-2 outline-offset-2 outline-ring;
-}
-
-/* Colorblind-safe status indicators */
-.status-needs-id {
-  @apply bg-blue-500/20 text-blue-700 border-blue-500;
-}
-
-.status-has-candidates {
-  @apply bg-amber-500/20 text-amber-700 border-amber-500;
-}
-
-.status-consensus {
-  @apply bg-green-500/20 text-green-700 border-green-500;
-}
-
-/* Map cluster styles */
-.cluster-marker {
-  @apply rounded-full border-2 border-white shadow-lg cursor-pointer transition-transform hover:scale-110;
-}
-
-/* Loading skeleton */
-@keyframes pulse-subtle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  @apply outline-2 outline-offset-2 outline-forest-700;
 }
