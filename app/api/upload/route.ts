@@ -87,7 +87,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error uploading file:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    // surface minimal error info to help debugging client-side
+    const message = error instanceof Error ? error.message : 'Upload failed';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
