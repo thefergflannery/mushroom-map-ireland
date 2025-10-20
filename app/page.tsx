@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { UserMenu } from '@/components/auth/user-menu';
 import { TopSpecies } from '@/components/home/top-species';
+import { MobileNav } from '@/components/ui/mobile-nav';
 import MapClient from '@/components/map/map-client';
 
 async function getRecentObservations() {
@@ -90,6 +91,7 @@ export default async function HomePage() {
                 </Link>
               )}
             </nav>
+            <MobileNav />
           </div>
         </div>
       </header>

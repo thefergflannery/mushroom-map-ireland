@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UploadForm } from '@/components/observe/upload-form';
 import { LocationPicker } from '@/components/observe/location-picker';
+import { AISuggestions } from '@/components/observe/ai-suggestions';
 
 export default function ObservePage() {
   const router = useRouter();
