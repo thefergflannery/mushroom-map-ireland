@@ -62,9 +62,11 @@ export async function POST(request: NextRequest) {
     // Upload to Vercel Blob
     // Note: In production, we should strip EXIF here using sharp
     // For now, we keep original but extracted GPS data separately
-    const blob = await put(filename, file, {
+    const blob = await put(filename, buffer, {
       access: 'public',
       addRandomSuffix: false,
+      // Explicitly pass token to avoid environment binding issues
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
     return NextResponse.json(
@@ -88,4 +90,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
+
+// Ensure Node.js runtime for Buffer and blob SDK token usage
+export const runtime = 'nodejs';
 
