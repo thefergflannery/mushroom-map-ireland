@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { UserMenu } from '@/components/auth/user-menu';
+import { TopSpecies } from '@/components/home/top-species';
 import MapClient from '@/components/map/map-client';
 
 async function getRecentObservations() {
@@ -146,6 +147,11 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Top Species Section */}
+      <Suspense fallback={<div className="py-16 bg-white"><div className="container mx-auto px-4 text-center"><p className="text-gray-500">Loading top species...</p></div></div>}>
+        <TopSpecies />
+      </Suspense>
 
       {/* How It Works - Urban ReLeaf Card Style */}
       <section className="py-16 bg-gradient-to-b from-green-50/50 to-white">
