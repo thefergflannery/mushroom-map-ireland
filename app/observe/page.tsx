@@ -277,6 +277,13 @@ export default function ObservePage() {
               )}
 
               {/* Actions */}
+              {/* Optional AI Suggestions */}
+              {photoUrl && (
+                <div className="pt-4 border-t">
+                  <AISuggestions imageUrl={photoUrl} />
+                </div>
+              )}
+
               <div className="flex gap-3 pt-4 border-t">
                 <Button
                   variant="outline"
