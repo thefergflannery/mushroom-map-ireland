@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UploadForm } from '@/components/observe/upload-form';
@@ -32,10 +33,13 @@ export default function ObservePage() {
       if (exif.lat >= 51 && exif.lat <= 56 && exif.lng >= -11 && exif.lng <= -5) {
         setLocation({ lat: exif.lat, lng: exif.lng });
         setExifDetected(true);
-        console.log('GPS location extracted from photo:', exif.lat, exif.lng);
+        toast.success(`GPS location detected from photo! (${exif.lat.toFixed(4)}, ${exif.lng.toFixed(4)})`);
+      } else {
+        toast('GPS data found but location is outside Ireland', { icon: '⚠️' });
       }
     }
     
+    toast.success('Photo uploaded successfully!');
     setStep(2);
   };
 
@@ -45,12 +49,14 @@ export default function ObservePage() {
 
   const handleSubmit = async () => {
     if (!photoUrl || !location) {
-      setError('Please complete all required steps');
+      toast.error('Please complete all required steps');
       return;
     }
 
     setSubmitting(true);
     setError('');
+
+    const loadingToast = toast.loading('Submitting observation...');
 
     try {
       const response = await fetch('/api/observations', {
@@ -75,10 +81,14 @@ export default function ObservePage() {
 
       const data = await response.json();
       
+      toast.success('Observation created successfully!', { id: loadingToast });
+      
       // Redirect to the new observation
       router.push(`/observation/${data.data.id}`);
     } catch (err: any) {
-      setError(err.message || 'Failed to submit observation. Please try again.');
+      const errorMessage = err.message || 'Failed to submit observation. Please try again.';
+      toast.error(errorMessage, { id: loadingToast });
+      setError(errorMessage);
       console.error('Submit error:', err);
       setSubmitting(false);
     }

@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { prisma } from '@/lib/prisma';
@@ -94,6 +95,9 @@ export default async function HomePage() {
               <Link href="/glossary" className="text-sm text-gray-700 hover:text-gray-900">
                 Glossary
               </Link>
+              <Link href="/about" className="text-sm text-gray-700 hover:text-gray-900">
+                About
+              </Link>
               {session?.user ? (
                 <>
                   <Link href="/observe">
@@ -140,33 +144,104 @@ export default async function HomePage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Map of Life-style Hero */}
-        <section className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900 text-white mb-10">
-          <div className="px-6 py-12 sm:px-10 sm:py-16">
+        {/* Hero Section with Image */}
+        <section className="relative overflow-hidden rounded-2xl mb-10 h-[500px] sm:h-[600px]">
+          {/* Background Image */}
+          <div className="absolute inset-0">
+            <Image
+              src="/hero1.jpg"
+              alt="Irish mushrooms in forest"
+              fill
+              className="object-cover"
+              priority
+            />
+            {/* Dark overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/70 to-gray-900/50" />
+          </div>
+
+          {/* Hero Content */}
+          <div className="relative h-full flex items-center px-6 py-12 sm:px-10 sm:py-16">
             <div className="max-w-3xl">
-              <h1 className="text-4xl sm:text-5xl font-bold mb-4">Explore the Map</h1>
-              <p className="text-emerald-200/90 max-w-2xl mb-8">
-                Access comprehensive, privacy-safe data on mushroom species and habitats across Ireland.
+              <div className="inline-block mb-4">
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-600/90 text-white text-sm font-medium backdrop-blur-sm">
+                  <span>🍄</span>
+                  <span>33 Irish Species Mapped</span>
+                </span>
+              </div>
+              
+              <h1 className="text-4xl sm:text-6xl font-bold text-white mb-6 leading-tight">
+                Discover Ireland's
+                <br />
+                <span className="text-green-400">Fungi Kingdom</span>
+              </h1>
+              
+              <p className="text-xl text-gray-200 max-w-2xl mb-8 leading-relaxed">
+                A privacy-first citizen science platform for identifying and mapping mushrooms across Ireland. Join our community of foragers, naturalists, and mycologists.
               </p>
-              <div className="flex flex-wrap gap-3 mb-8">
-                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3">
-                  <p className="text-sm text-emerald-200">Species</p>
-                  <p className="text-2xl font-semibold">{stats.speciesCount}</p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap gap-4 mb-8">
+                {session?.user ? (
+                  <>
+                    <Link href="/observe">
+                      <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white shadow-lg">
+                        <span className="mr-2">📸</span>
+                        Add Your Find
+                      </Button>
+                    </Link>
+                    <Link href="/map">
+                      <Button size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                        Explore Map
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/auth/signin">
+                      <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white shadow-lg">
+                        <span className="mr-2">🚀</span>
+                        Get Started
+                      </Button>
+                    </Link>
+                    <Link href="/species">
+                      <Button size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                        Browse Species
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+
+              {/* Stats */}
+              <div className="flex flex-wrap gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center backdrop-blur-sm">
+                    <span className="text-2xl">🍄</span>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{stats.speciesCount}</p>
+                    <p className="text-sm text-gray-300">Species</p>
+                  </div>
                 </div>
-                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3">
-                  <p className="text-sm text-emerald-200">Observations</p>
-                  <p className="text-2xl font-semibold">{stats.observationCount}</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center backdrop-blur-sm">
+                    <span className="text-2xl">📍</span>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{stats.observationCount}</p>
+                    <p className="text-sm text-gray-300">Observations</p>
+                  </div>
                 </div>
-                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3">
-                  <p className="text-sm text-emerald-200">Contributors</p>
-                  <p className="text-2xl font-semibold">{stats.userCount}</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center backdrop-blur-sm">
+                    <span className="text-2xl">👥</span>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{stats.userCount}</p>
+                    <p className="text-sm text-gray-300">Contributors</p>
+                  </div>
                 </div>
               </div>
-              <Link href="/observe">
-                <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                  Get started
-                </Button>
-              </Link>
             </div>
           </div>
         </section>
@@ -388,9 +463,10 @@ export default async function HomePage() {
             <div>
               <h4 className="font-semibold text-white mb-3 text-sm">About</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="mailto:hello@beacain.ie" className="hover:text-white">Contact</a></li>
+                <li><Link href="/about" className="hover:text-white">About Us</Link></li>
                 <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link href="https://github.com/thefergflannery/mushroom-map-ireland" className="hover:text-white">v1.0.0</Link></li>
+                <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
+                <li><a href="mailto:hello@beacain.ie" className="hover:text-white">Contact</a></li>
               </ul>
             </div>
           </div>

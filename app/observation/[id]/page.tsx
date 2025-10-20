@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { getDisplayCoordinates } from '@/lib/geo/grid';
 import { VoteButtons } from '@/components/observation/vote-buttons';
 import { IdentificationForm } from '@/components/observation/identification-form';
 import { CommentForm } from '@/components/observation/comment-form';
+import { ShareButton } from '@/components/observation/share-button';
 
 interface PageProps {
   params: { id: string };
@@ -141,11 +143,14 @@ export default async function ObservationPage({ params }: PageProps) {
           <div className="lg:col-span-2 space-y-6">
             {/* Photo */}
             <Card>
-              <CardContent className="p-0">
-                <img
+              <CardContent className="p-0 relative">
+                <Image
                   src={observation.photoUrl}
                   alt="Mushroom observation"
+                  width={800}
+                  height={600}
                   className="w-full h-auto rounded-t-lg"
+                  priority
                 />
               </CardContent>
             </Card>
@@ -297,15 +302,22 @@ export default async function ObservationPage({ params }: PageProps) {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Status */}
+            {/* Status & Actions */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Status</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 <Badge variant={observation.status === 'CONSENSUS' ? 'success' : 'warning'}>
                   {statusLabels[observation.status]}
                 </Badge>
+                <div className="pt-2">
+                  <ShareButton
+                    observationId={observation.id}
+                    title={consensusSpecies ? `${consensusSpecies.commonEn} (${consensusSpecies.latinName})` : 'Mushroom Observation'}
+                    description={`Check out this mushroom observation ${consensusSpecies ? `identified as ${consensusSpecies.commonEn}` : ''} on Mushroom Map Ireland`}
+                  />
+                </div>
               </CardContent>
             </Card>
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 
 interface VoteButtonsProps {
@@ -37,10 +38,14 @@ export function VoteButtons({ identificationId, currentVote, voteCount, score }:
         throw new Error(data.error || 'Failed to vote');
       }
 
+      toast.success(value === 1 ? 'Voted: Agree ✓' : 'Voted: Disagree ✗');
+      
       // Refresh page to show updated votes
       router.refresh();
     } catch (err: any) {
-      setError(err.message || 'Failed to vote');
+      const errorMsg = err.message || 'Failed to vote';
+      setError(errorMsg);
+      toast.error(errorMsg);
       console.error('Vote error:', err);
     } finally {
       setVoting(false);

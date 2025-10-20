@@ -137,6 +137,237 @@ const irishSpecies = [
     keyTraits: 'Conical orange-red cap; blackens with age or when handled; not recommended',
     sensitive: false,
   },
+  {
+    latinName: 'Armillaria mellea',
+    commonEn: 'Honey Fungus',
+    commonGa: 'Fungais Meala',
+    slug: 'honey-fungus',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Autumn (September-November)',
+    habitat: 'Dead and living trees, stumps',
+    keyTraits: 'Honey-colored cap with darker scales; white ring on stem; grows in clusters; parasitic; edible but causes upset in some',
+    sensitive: false,
+  },
+  {
+    latinName: 'Clitocybe nebularis',
+    commonEn: 'Clouded Funnel',
+    commonGa: 'Néalscairt',
+    slug: 'clouded-funnel',
+    edibility: 'CAUTION' as Edibility,
+    season: 'Autumn (September-December)',
+    habitat: 'Woodland, especially beech',
+    keyTraits: 'Large grey-brown cap; crowded white gills; strong mealy smell; causes upset in some people',
+    sensitive: false,
+  },
+  {
+    latinName: 'Lycoperdon perlatum',
+    commonEn: 'Common Puffball',
+    commonGa: 'Balláin Coiteann',
+    slug: 'common-puffball',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Summer to autumn (July-November)',
+    habitat: 'Woodland, grassland',
+    keyTraits: 'Small white puffball with spiny warts; edible when pure white inside; releases brown spore cloud',
+    sensitive: false,
+  },
+  {
+    latinName: 'Calvatia gigantea',
+    commonEn: 'Giant Puffball',
+    commonGa: 'Balláin Ollmhór',
+    slug: 'giant-puffball',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Late summer to autumn (August-October)',
+    habitat: 'Grassland, pastures',
+    keyTraits: 'Huge white ball up to 80cm; no stem; edible when pure white inside; choice edible',
+    sensitive: false,
+  },
+  {
+    latinName: 'Laccaria amethystina',
+    commonEn: 'Amethyst Deceiver',
+    commonGa: 'Meallaire Aimitis',
+    slug: 'amethyst-deceiver',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Autumn (September-November)',
+    habitat: 'Mixed woodland',
+    keyTraits: 'Beautiful purple throughout when young; fades with age; edible but small',
+    sensitive: false,
+  },
+  {
+    latinName: 'Hypholoma fasciculare',
+    commonEn: 'Sulphur Tuft',
+    commonGa: 'Dos Buí Suifre',
+    slug: 'sulphur-tuft',
+    edibility: 'TOXIC' as Edibility,
+    season: 'Year-round',
+    habitat: 'Dead wood, stumps',
+    keyTraits: 'Bright yellow cap with darker center; grows in dense clusters; bitter taste; POISONOUS',
+    sensitive: false,
+  },
+  {
+    latinName: 'Paxillus involutus',
+    commonEn: 'Brown Roll-Rim',
+    commonGa: 'Imeall Rolla Donn',
+    slug: 'brown-roll-rim',
+    edibility: 'DEADLY' as Edibility,
+    season: 'Summer to autumn (July-November)',
+    habitat: 'Woodland, heathland',
+    keyTraits: 'Brown cap with inrolled margin; yellowish gills bruising brown; DEADLY - causes immune reaction',
+    sensitive: true,
+  },
+  {
+    latinName: 'Fomes fomentarius',
+    commonEn: 'Tinder Fungus',
+    commonGa: 'Fungais Spúnse',
+    slug: 'tinder-fungus',
+    edibility: 'UNKNOWN' as Edibility,
+    season: 'Year-round (perennial)',
+    habitat: 'Dead birch trees',
+    keyTraits: "Hoof-shaped bracket fungus; grey-brown; hard woody texture; historically used as tinder and 'amadou'; not edible",
+    sensitive: false,
+  },
+  {
+    latinName: 'Laetiporus sulphureus',
+    commonEn: 'Chicken of the Woods',
+    commonGa: 'Sicín na Coille',
+    slug: 'chicken-of-the-woods',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Spring to autumn (May-October)',
+    habitat: 'Dead or living trees, especially oak',
+    keyTraits: 'Bright orange-yellow brackets; soft when young; chicken-like texture; good edible when young',
+    sensitive: false,
+  },
+  {
+    latinName: 'Grifola frondosa',
+    commonEn: 'Hen of the Woods / Maitake',
+    commonGa: 'Cearc na Coille',
+    slug: 'hen-of-the-woods',
+    edibility: 'CHOICE' as Edibility,
+    season: 'Autumn (September-November)',
+    habitat: 'Base of oak trees',
+    keyTraits: 'Large clustered fronds; grey-brown; tender when young; excellent edible; highly prized',
+    sensitive: false,
+  },
+  {
+    latinName: 'Morchella esculenta',
+    commonEn: 'Common Morel',
+    commonGa: 'Moiréal Coiteann',
+    slug: 'common-morel',
+    edibility: 'CHOICE' as Edibility,
+    season: 'Spring (April-May)',
+    habitat: 'Woodland, orchards, disturbed ground',
+    keyTraits: 'Honeycomb cap; hollow throughout; cream to brown; excellent edible when cooked; TOXIC raw',
+    sensitive: false,
+  },
+  {
+    latinName: 'Gyromitra esculenta',
+    commonEn: 'False Morel',
+    commonGa: 'Moiréal Bréige',
+    slug: 'false-morel',
+    edibility: 'DEADLY' as Edibility,
+    season: 'Spring (April-May)',
+    habitat: 'Sandy soil, coniferous woodland',
+    keyTraits: 'Brain-like wrinkled cap; reddish-brown; hollow stem; DEADLY POISONOUS - contains rocket fuel toxin',
+    sensitive: true,
+  },
+  {
+    latinName: 'Craterellus cornucopioides',
+    commonEn: 'Horn of Plenty',
+    commonGa: 'Adharc an Fhlúirse',
+    slug: 'horn-of-plenty',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Autumn (September-November)',
+    habitat: 'Beech and oak woodland',
+    keyTraits: 'Black trumpet-shaped; hollow; grey underside; good edible; hard to spot on forest floor',
+    sensitive: false,
+  },
+  {
+    latinName: 'Sparassis crispa',
+    commonEn: 'Wood Cauliflower',
+    commonGa: 'Cóilis Choille',
+    slug: 'wood-cauliflower',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Autumn (September-November)',
+    habitat: 'Base of conifers, especially pine',
+    keyTraits: 'Large pale cauliflower-like mass; frilly lobed branches; good edible when young',
+    sensitive: false,
+  },
+  {
+    latinName: 'Hericium erinaceus',
+    commonEn: "Lion's Mane",
+    commonGa: 'Moing Leoin',
+    slug: 'lions-mane',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Autumn (September-November)',
+    habitat: 'Dead or dying hardwoods, especially beech',
+    keyTraits: 'White cascade of icicle-like spines; rare in Ireland; excellent edible; medicinal properties',
+    sensitive: false,
+  },
+  {
+    latinName: 'Auricularia auricula-judae',
+    commonEn: "Jelly Ear / Jew's Ear",
+    commonGa: 'Cluas Liath',
+    slug: 'jelly-ear',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Year-round',
+    habitat: 'Elder and other hardwoods',
+    keyTraits: 'Ear-shaped; brown gelatinous; grows on dead wood; edible; used in Asian cuisine',
+    sensitive: false,
+  },
+  {
+    latinName: 'Trametes versicolor',
+    commonEn: 'Turkey Tail',
+    commonGa: 'Eireaball Turcaí',
+    slug: 'turkey-tail',
+    edibility: 'UNKNOWN' as Edibility,
+    season: 'Year-round',
+    habitat: 'Dead hardwood logs and stumps',
+    keyTraits: 'Thin brackets with colorful concentric zones; velvety; medicinal properties; too tough to eat',
+    sensitive: false,
+  },
+  {
+    latinName: 'Ganoderma lucidum',
+    commonEn: 'Reishi / Lacquered Bracket',
+    commonGa: 'Fungais Véarnaiseach',
+    slug: 'reishi',
+    edibility: 'UNKNOWN' as Edibility,
+    season: 'Summer to autumn (July-November)',
+    habitat: 'Hardwood stumps and logs',
+    keyTraits: 'Shiny reddish-brown bracket; kidney-shaped; woody; highly valued medicinally; too woody to eat',
+    sensitive: false,
+  },
+  {
+    latinName: 'Hydnum repandum',
+    commonEn: 'Wood Hedgehog',
+    commonGa: 'Gráinneog Choille',
+    slug: 'wood-hedgehog',
+    edibility: 'EDIBLE' as Edibility,
+    season: 'Autumn (September-November)',
+    habitat: 'Mixed woodland',
+    keyTraits: 'Cream to pale orange cap; spines instead of gills; solid stem; good edible; peppery when old',
+    sensitive: false,
+  },
+  {
+    latinName: 'Clitocybe rivulosa',
+    commonEn: 'Fool\'s Funnel',
+    commonGa: 'Scairt an Amadáin',
+    slug: 'fools-funnel',
+    edibility: 'DEADLY' as Edibility,
+    season: 'Autumn (September-November)',
+    habitat: 'Grassland, lawns',
+    keyTraits: 'Small whitish cap; crowded white gills; mealy smell; DEADLY - contains muscarine; confused with edible species',
+    sensitive: true,
+  },
+  {
+    latinName: 'Mycena pura',
+    commonEn: 'Lilac Bonnet',
+    commonGa: 'Cochaillín Liathchorcra',
+    slug: 'lilac-bonnet',
+    edibility: 'TOXIC' as Edibility,
+    season: 'Summer to autumn (June-November)',
+    habitat: 'Woodland, especially beech',
+    keyTraits: 'Lilac-pink throughout; bell-shaped cap; radish smell; contains muscarine - POISONOUS',
+    sensitive: false,
+  },
 ];
 
 const glossaryTerms = [
@@ -240,25 +471,65 @@ async function main() {
 
   // Add lookalikes relationships
   console.log('Adding lookalike relationships...');
-  const deathCap = await prisma.species.findUnique({
-    where: { slug: 'death-cap' },
-  });
-  const fieldMushroom = await prisma.species.findUnique({
-    where: { slug: 'field-mushroom' },
-  });
-
+  
+  // Death Cap <-> Field Mushroom (deadly confusion!)
+  const deathCap = await prisma.species.findUnique({ where: { slug: 'death-cap' } });
+  const fieldMushroom = await prisma.species.findUnique({ where: { slug: 'field-mushroom' } });
   if (deathCap && fieldMushroom) {
     await prisma.species.update({
       where: { slug: 'death-cap' },
-      data: {
-        lookalikeIds: [fieldMushroom.id],
-      },
+      data: { lookalikeIds: [fieldMushroom.id] },
     });
     await prisma.species.update({
       where: { slug: 'field-mushroom' },
-      data: {
-        lookalikeIds: [deathCap.id],
-      },
+      data: { lookalikeIds: [deathCap.id] },
+    });
+  }
+  
+  // False Morel <-> Common Morel (deadly confusion!)
+  const falseMorel = await prisma.species.findUnique({ where: { slug: 'false-morel' } });
+  const commonMorel = await prisma.species.findUnique({ where: { slug: 'common-morel' } });
+  if (falseMorel && commonMorel) {
+    await prisma.species.update({
+      where: { slug: 'false-morel' },
+      data: { lookalikeIds: [commonMorel.id] },
+    });
+    await prisma.species.update({
+      where: { slug: 'common-morel' },
+      data: { lookalikeIds: [falseMorel.id] },
+    });
+  }
+  
+  // Fool's Funnel <-> Field Mushroom (deadly confusion!)
+  const foolsFunnel = await prisma.species.findUnique({ where: { slug: 'fools-funnel' } });
+  if (foolsFunnel && fieldMushroom) {
+    await prisma.species.update({
+      where: { slug: 'fools-funnel' },
+      data: { lookalikeIds: [fieldMushroom.id] },
+    });
+  }
+  
+  // Sickener <-> Chanterelle (color confusion)
+  const sickener = await prisma.species.findUnique({ where: { slug: 'sickener' } });
+  const chanterelle = await prisma.species.findUnique({ where: { slug: 'chanterelle' } });
+  if (sickener && chanterelle) {
+    await prisma.species.update({
+      where: { slug: 'sickener' },
+      data: { lookalikeIds: [chanterelle.id] },
+    });
+  }
+  
+  // Sulphur Tuft <-> Honey Fungus (cluster confusion)
+  const sulphurTuft = await prisma.species.findUnique({ where: { slug: 'sulphur-tuft' } });
+  const honeyFungus = await prisma.species.findUnique({ where: { slug: 'honey-fungus' } });
+  if (sulphurTuft && honeyFungus) {
+    await prisma.species.update({
+      where: { slug: 'sulphur-tuft' },
+      data: { lookalikeIds: [honeyFungus.id] },
+    });
+    await prisma.species.update({
+      where: { slug: 'honey-fungus' },
+      data: { lookalikeIds: [sulphurTuft.id] },
     });
   }
 

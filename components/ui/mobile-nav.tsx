@@ -43,6 +43,13 @@ export function MobileNav() {
         <div className="absolute top-full left-0 right-0 bg-white border-b shadow-lg">
           <nav className="container mx-auto px-4 py-4 space-y-3">
             <Link
+              href="/map"
+              className="block py-2 text-sm font-medium text-gray-700 hover:text-forest-700"
+              onClick={() => setIsOpen(false)}
+            >
+              Map
+            </Link>
+            <Link
               href="/species"
               className="block py-2 text-sm font-medium text-gray-700 hover:text-forest-700"
               onClick={() => setIsOpen(false)}
@@ -55,6 +62,13 @@ export function MobileNav() {
               onClick={() => setIsOpen(false)}
             >
               Glossary
+            </Link>
+            <Link
+              href="/about"
+              className="block py-2 text-sm font-medium text-gray-700 hover:text-forest-700"
+              onClick={() => setIsOpen(false)}
+            >
+              About
             </Link>
             <Link href="/observe" onClick={() => setIsOpen(false)}>
               <Button className="w-full bg-forest-600 hover:bg-forest-700">
