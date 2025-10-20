@@ -133,7 +133,7 @@ export default async function HomePage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 w-fit mb-6">
               <span className="w-2 h-2 bg-forest-400 rounded-full animate-pulse"></span>
               <span className="text-white text-sm font-medium tracking-wide">
-                Citizen Science Platform • {stats.speciesCount} Species Mapped
+                {stats.speciesCount} Species • {stats.observationCount} Observations
               </span>
             </div>
 
@@ -177,18 +177,18 @@ export default async function HomePage() {
             </div>
 
             {/* Stats Bar */}
-            <div className="flex flex-wrap gap-8 text-white">
-              <div>
-                <div className="text-4xl md:text-5xl font-bold mb-1">{stats.speciesCount}</div>
-                <div className="text-sm md:text-base text-white/80 uppercase tracking-wider">Species</div>
+            <div className="grid grid-cols-3 gap-6 md:gap-12 max-w-2xl">
+              <div className="text-center md:text-left">
+                <div className="text-5xl md:text-6xl font-extrabold mb-2 text-forest-300">{stats.speciesCount}</div>
+                <div className="text-sm text-white/90 uppercase tracking-widest font-medium">Species</div>
               </div>
-              <div>
-                <div className="text-4xl md:text-5xl font-bold mb-1">{stats.observationCount}</div>
-                <div className="text-sm md:text-base text-white/80 uppercase tracking-wider">Observations</div>
+              <div className="text-center md:text-left">
+                <div className="text-5xl md:text-6xl font-extrabold mb-2 text-forest-300">{stats.observationCount}</div>
+                <div className="text-sm text-white/90 uppercase tracking-widest font-medium">Observations</div>
               </div>
-              <div>
-                <div className="text-4xl md:text-5xl font-bold mb-1">{stats.userCount}</div>
-                <div className="text-sm md:text-base text-white/80 uppercase tracking-wider">Contributors</div>
+              <div className="text-center md:text-left">
+                <div className="text-5xl md:text-6xl font-extrabold mb-2 text-forest-300">{stats.userCount}</div>
+                <div className="text-sm text-white/90 uppercase tracking-widest font-medium">Contributors</div>
               </div>
             </div>
           </div>
@@ -556,10 +556,10 @@ export default async function HomePage() {
           <div className="border-t border-slate-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
               <p>
-                © 2025 Beacáin • Open Source • Privacy-First
+                © 2025 Beacáin • Open Source
               </p>
               <p className="text-slate-500">
-                Powered by citizen science • Data from Fungal Diversity Database
+                Data from Fungal Diversity Database
               </p>
             </div>
           </div>

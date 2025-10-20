@@ -147,56 +147,55 @@ export function SpeciesList({ species }: SpeciesListProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSpecies.map((sp) => (
             <Link href={`/species/${sp.slug}`} key={sp.id}>
-              <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                {sp.heroImageUrl && (
-                  <div className="h-48 overflow-hidden rounded-t-lg relative">
+              <Card className="card-modern h-full group">
+                <div className="h-64 overflow-hidden rounded-t-2xl relative bg-slate-100">
+                  {sp.heroImageUrl ? (
                     <Image
                       src={sp.heroImageUrl}
                       alt={sp.commonEn}
                       fill
-                      className="object-cover hover:scale-105 transition-transform"
+                      className="object-cover img-hover-zoom"
                     />
-                  </div>
-                )}
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg italic">{sp.latinName}</CardTitle>
-                      <CardDescription className="text-base font-medium">{sp.commonEn}</CardDescription>
-                      {sp.commonGa && <p className="text-sm text-muted-foreground">{sp.commonGa}</p>}
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-forest-700 to-forest-900 flex items-center justify-center">
+                      <span className="text-9xl opacity-20">🍄</span>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <Badge className={`${edibilityColors[sp.edibility]} text-white text-xs`}>
-                        {sp.edibility}
-                      </Badge>
-                      {sp.sensitive && (
-                        <Badge variant="outline" className="text-xs">
-                          Protected
-                        </Badge>
-                      )}
-                    </div>
+                  )}
+                  
+                  {/* Edibility badge overlay */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg ${edibilityColors[sp.edibility].replace('bg-', 'bg-')} text-white`}>
+                      {sp.edibility}
+                    </span>
                   </div>
-                </CardHeader>
-                <CardContent>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold text-forest-900 mb-1 italic group-hover:text-forest-700 transition-colors">
+                    {sp.latinName}
+                  </h3>
+                  <p className="text-lg font-semibold text-slate-700 mb-1">{sp.commonEn}</p>
+                  {sp.commonGa && (
+                    <p className="text-sm text-slate-500 mb-4">{sp.commonGa}</p>
+                  )}
+                  
                   {sp.keyTraits && (
-                    <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{sp.keyTraits}</p>
+                    <p className="text-sm text-slate-600 line-clamp-2 mb-4 leading-relaxed">{sp.keyTraits}</p>
                   )}
-                  {sp.season && (
-                    <div className="text-xs text-muted-foreground mb-2">
-                      <span className="font-medium">Season:</span> {sp.season}
-                    </div>
-                  )}
-                  {sp.habitat && (
-                    <div className="text-xs text-muted-foreground mb-2">
-                      <span className="font-medium">Habitat:</span> {sp.habitat}
-                    </div>
-                  )}
-                  {sp._count.identifications > 0 && (
-                    <p className="text-xs text-blue-600">
-                      {sp._count.identifications} observation{sp._count.identifications !== 1 ? 's' : ''}
-                    </p>
-                  )}
-                </CardContent>
+                  
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                    {sp._count.identifications > 0 && (
+                      <div className="text-sm">
+                        <span className="font-bold text-forest-700">{sp._count.identifications}</span>
+                        <span className="text-slate-600 ml-1">observations</span>
+                      </div>
+                    )}
+                    {sp.sensitive && (
+                      <Badge variant="outline" className="text-xs border-amber-300 text-amber-700">
+                        Protected
+                      </Badge>
+                    )}
+                  </div>
+                </div>
               </Card>
             </Link>
           ))}

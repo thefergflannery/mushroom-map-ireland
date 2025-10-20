@@ -21,7 +21,6 @@ export default async function ObservationPage({ params }: PageProps) {
   const session = await auth();
   const viewerRole = session?.user ? (session.user as any).role : undefined;
 
-  // Get all species for identification form
   const allSpecies = await prisma.species.findMany({
     orderBy: { latinName: 'asc' },
     select: {
@@ -112,280 +111,344 @@ export default async function ObservationPage({ params }: PageProps) {
   );
 
   const edibilityColors = {
-    CHOICE: 'bg-green-500',
-    EDIBLE: 'bg-green-400',
-    CAUTION: 'bg-yellow-500',
-    TOXIC: 'bg-orange-500',
-    DEADLY: 'bg-red-500',
-    UNKNOWN: 'bg-gray-400',
+    CHOICE: 'bg-forest-700 text-white',
+    EDIBLE: 'bg-forest-600 text-white',
+    CAUTION: 'bg-amber-500 text-white',
+    TOXIC: 'bg-orange-600 text-white',
+    DEADLY: 'bg-red-700 text-white',
+    UNKNOWN: 'bg-slate-500 text-white',
   };
 
   const statusLabels = {
     NEEDS_ID: 'Needs Identification',
-    HAS_CANDIDATES: 'Has Candidates',
+    HAS_CANDIDATES: 'Under Review',
     CONSENSUS: 'Consensus Reached',
   };
 
+  const statusColors = {
+    NEEDS_ID: 'bg-slate-100 text-slate-700 border-slate-300',
+    HAS_CANDIDATES: 'bg-amber-50 text-amber-700 border-amber-300',
+    CONSENSUS: 'bg-forest-50 text-forest-700 border-forest-300',
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b bg-white">
-        <div className="container mx-auto px-4 py-4">
-          <Link href="/">
-            <Button variant="ghost">← Back to Map</Button>
-          </Link>
+    <div className="min-h-screen bg-slate-50">
+      {/* Minimal Header */}
+      <header className="bg-white border-b">
+        <div className="container-modern py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/">
+              <Button variant="ghost" className="rounded-full">
+                <span className="mr-2">←</span> Back to Map
+              </Button>
+            </Link>
+            <div className="flex items-center gap-3">
+              <Badge className={`${statusColors[observation.status]} border px-4 py-1.5 rounded-full font-semibold`}>
+                {statusLabels[observation.status]}
+              </Badge>
+              <ShareButton
+                observationId={observation.id}
+                title={consensusSpecies ? `${consensusSpecies.commonEn} (${consensusSpecies.latinName})` : 'Mushroom Observation'}
+                description={`Check out this mushroom observation ${consensusSpecies ? `identified as ${consensusSpecies.commonEn}` : ''} on Mushroom Map Ireland`}
+              />
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Photo */}
-            <Card>
-              <CardContent className="p-0 relative">
-                <Image
-                  src={observation.photoUrl}
-                  alt="Mushroom observation"
-                  width={800}
-                  height={600}
-                  className="w-full h-auto rounded-t-lg"
-                  priority
-                />
-              </CardContent>
-            </Card>
+      <main>
+        {/* Hero Photo - Full Width */}
+        <section className="relative h-[70vh] min-h-[600px] bg-slate-900">
+          <Image
+            src={observation.photoUrl}
+            alt="Mushroom observation"
+            fill
+            className="object-contain"
+            priority
+          />
+        </section>
 
-            {/* Identifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Identifications</CardTitle>
-                <CardDescription>
-                  {observation._count.identifications} identification
-                  {observation._count.identifications !== 1 ? 's' : ''} proposed
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {session?.user && (
-                  <IdentificationForm
-                    observationId={observation.id}
-                    availableSpecies={allSpecies}
-                  />
-                )}
-                
-                {observation.identifications.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>No identifications yet. Be the first to suggest one!</p>
-                  </div>
-                ) : (
-                  observation.identifications.map((identification) => (
-                    <div
-                      key={identification.id}
-                      className={`p-4 border rounded-lg ${
-                        identification.isConsensus ? 'border-green-500 bg-green-50' : ''
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          {identification.species ? (
-                            <div>
-                              <h3 className="font-semibold text-lg italic">{identification.species.latinName}</h3>
-                              <p className="text-muted-foreground">{identification.species.commonEn}</p>
-                              {identification.species.commonGa && (
-                                <p className="text-sm text-muted-foreground">({identification.species.commonGa})</p>
-                              )}
-                            </div>
-                          ) : (
-                            <p className="text-muted-foreground">Unknown species</p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {identification.isConsensus && (
-                            <Badge variant="success" className="ml-2">
-                              Consensus
-                            </Badge>
-                          )}
-                          {identification.species && (
-                            <Badge
-                              className={edibilityColors[identification.species.edibility]}
-                              variant="secondary"
-                            >
-                              {identification.species.edibility}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                        <span>
-                          Proposed by{' '}
-                          <Link
-                            href={`/profile/${identification.proposer?.handle}`}
-                            className="text-forest-700 hover:underline"
-                          >
-                            @{identification.proposer?.handle}
-                          </Link>
-                        </span>
-                        <Badge variant="outline">{identification.method}</Badge>
-                        {identification.confidence && (
-                          <span>{Math.round(identification.confidence * 100)}% confident</span>
+        {/* Content Section */}
+        <section className="section-sm bg-white">
+          <div className="container-modern max-w-6xl">
+            <div className="grid lg:grid-cols-3 gap-12">
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Observation Info */}
+                <div>
+                  {consensusSpecies && (
+                    <div className="mb-6">
+                      <h1 className="heading-hero text-forest-900 mb-2 italic">
+                        {consensusSpecies.latinName}
+                      </h1>
+                      <p className="text-2xl font-semibold text-slate-700 mb-1">{consensusSpecies.commonEn}</p>
+                      {consensusSpecies.commonGa && (
+                        <p className="text-lg text-slate-500">{consensusSpecies.commonGa}</p>
+                      )}
+                      <div className="flex items-center gap-3 mt-4">
+                        <Badge className={`${edibilityColors[consensusSpecies.edibility]} px-4 py-1.5 rounded-full font-bold text-sm`}>
+                          {consensusSpecies.edibility}
+                        </Badge>
+                        {consensusSpecies.sensitive && (
+                          <Badge className="bg-amber-500 text-white px-4 py-1.5 rounded-full font-bold text-sm">
+                            Protected Species
+                          </Badge>
                         )}
                       </div>
-
-                      {identification.rationale && (
-                        <p className="text-sm mb-3">{identification.rationale}</p>
-                      )}
-
-                      {session?.user && identification.proposerUserId !== session.user.id ? (
-                        <VoteButtons
-                          identificationId={identification.id}
-                          currentVote={
-                            identification.votes.find((v) => v.voterUserId === session.user.id)?.value || null
-                          }
-                          voteCount={identification._count.votes}
-                          score={identification.score}
-                        />
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          Score: {identification.score} ({identification._count.votes} vote{identification._count.votes !== 1 ? 's' : ''})
-                        </div>
-                      )}
                     </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
+                  )}
 
-            {/* Comments */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Comments</CardTitle>
-                <CardDescription>
-                  {observation._count.comments} comment{observation._count.comments !== 1 ? 's' : ''}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {observation.comments.length === 0 ? (
-                  <p className="text-center py-4 text-muted-foreground">No comments yet</p>
-                ) : (
-                  <div className="space-y-4">
-                    {observation.comments.map((comment) => (
-                      <div key={comment.id} className="border-b pb-4 last:border-0">
-                        <div className="flex items-start gap-3">
+                  {!consensusSpecies && (
+                    <div className="mb-6">
+                      <h1 className="heading-hero text-slate-900 mb-2">
+                        Unidentified Observation
+                      </h1>
+                      <p className="text-xl text-slate-600">Help identify this mushroom</p>
+                    </div>
+                  )}
+
+                  {/* Observer Info */}
+                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                    <div className="w-12 h-12 rounded-full bg-forest-700 text-white flex items-center justify-center text-xl font-bold">
+                      {observation.user.handle?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">Observed by</p>
+                      <Link
+                        href={`/profile/${observation.user.handle}`}
+                        className="text-lg font-semibold text-forest-900 hover:text-forest-700"
+                      >
+                        @{observation.user.handle}
+                      </Link>
+                    </div>
+                    <div className="ml-auto text-right">
+                      <p className="text-sm text-slate-500">Date</p>
+                      <p className="font-medium">{formatDate(observation.createdAt)}</p>
+                    </div>
+                  </div>
+
+                  {observation.notes && (
+                    <div className="p-6 bg-slate-50 rounded-xl mt-6">
+                      <h3 className="text-lg font-semibold text-forest-900 mb-3">Observer Notes</h3>
+                      <p className="text-slate-700 leading-relaxed">{observation.notes}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Identifications */}
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-3xl font-bold text-forest-900">
+                      Identifications
+                      <span className="text-slate-400 text-2xl ml-3">({observation._count.identifications})</span>
+                    </h2>
+                  </div>
+
+                  {session?.user && (
+                    <div className="mb-8">
+                      <IdentificationForm
+                        observationId={observation.id}
+                        availableSpecies={allSpecies}
+                      />
+                    </div>
+                  )}
+                  
+                  {observation.identifications.length === 0 ? (
+                    <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-2xl">
+                      <p className="text-xl text-slate-600 mb-4">No identifications yet</p>
+                      <p className="text-slate-500">Be the first to suggest an identification!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {observation.identifications.map((identification) => (
+                        <div
+                          key={identification.id}
+                          className={`card-modern p-6 ${
+                            identification.isConsensus ? 'ring-2 ring-forest-700 bg-forest-50/50' : ''
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                              {identification.species ? (
+                                <div>
+                                  <h3 className="text-2xl font-bold text-forest-900 italic">{identification.species.latinName}</h3>
+                                  <p className="text-lg text-slate-700">{identification.species.commonEn}</p>
+                                  {identification.species.commonGa && (
+                                    <p className="text-sm text-slate-500">({identification.species.commonGa})</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-slate-500">Unknown species</p>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                              {identification.isConsensus && (
+                                <Badge className="bg-forest-700 text-white px-4 py-1.5 rounded-full font-bold">
+                                  ✓ Consensus
+                                </Badge>
+                              )}
+                              {identification.species && (
+                                <Badge className={`${edibilityColors[identification.species.edibility]} px-3 py-1 rounded-full text-xs font-bold`}>
+                                  {identification.species.edibility}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                            <span>
+                              by{' '}
+                              <Link
+                                href={`/profile/${identification.proposer?.handle}`}
+                                className="text-forest-700 hover:underline font-medium"
+                              >
+                                @{identification.proposer?.handle}
+                              </Link>
+                            </span>
+                            <Badge variant="outline" className="text-xs">{identification.method}</Badge>
+                            {identification.confidence && (
+                              <span className="font-medium">{Math.round(identification.confidence * 100)}% confident</span>
+                            )}
+                          </div>
+
+                          {identification.rationale && (
+                            <p className="text-slate-700 mb-4 leading-relaxed">{identification.rationale}</p>
+                          )}
+
+                          {session?.user && identification.proposerUserId !== session.user.id ? (
+                            <VoteButtons
+                              identificationId={identification.id}
+                              currentVote={
+                                identification.votes.find((v) => v.voterUserId === session.user.id)?.value || null
+                              }
+                              voteCount={identification._count.votes}
+                              score={identification.score}
+                            />
+                          ) : (
+                            <div className="text-sm font-medium text-slate-600">
+                              Score: <span className="text-forest-700">{identification.score}</span> ({identification._count.votes} vote{identification._count.votes !== 1 ? 's' : ''})
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Comments */}
+                <div>
+                  <h2 className="text-3xl font-bold text-forest-900 mb-6">
+                    Discussion
+                    <span className="text-slate-400 text-2xl ml-3">({observation._count.comments})</span>
+                  </h2>
+
+                  {observation.comments.length === 0 ? (
+                    <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-2xl">
+                      <p className="text-lg text-slate-600">No comments yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {observation.comments.map((comment) => (
+                        <div key={comment.id} className="flex gap-4 pb-6 border-b border-slate-100 last:border-0">
+                          <div className="w-10 h-10 rounded-full bg-forest-700 text-white flex items-center justify-center font-bold flex-shrink-0">
+                            {comment.user.handle?.charAt(0).toUpperCase()}
+                          </div>
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-3 mb-2">
                               <Link
                                 href={`/profile/${comment.user.handle}`}
-                                className="font-medium hover:underline"
+                                className="font-semibold text-forest-900 hover:text-forest-700"
                               >
                                 @{comment.user.handle}
                               </Link>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-sm text-slate-500">
                                 {formatRelativeTime(comment.createdAt)}
                               </span>
                             </div>
-                            <p className="text-sm">{comment.body}</p>
+                            <p className="text-slate-700 leading-relaxed">{comment.body}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {session?.user && (
+                    <div className="mt-8">
+                      <CommentForm observationId={observation.id} />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Sidebar */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-24 space-y-6">
+                  {/* Location Card */}
+                  <Card className="card-modern">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Location</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="h-48 rounded-lg overflow-hidden bg-slate-100 relative">
+                        {/* Simple static map placeholder */}
+                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-forest-700 to-forest-900 text-white">
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">📍</div>
+                            <p className="font-mono text-sm">
+                              {displayCoords.lat.toFixed(4)}, {displayCoords.lng.toFixed(4)}
+                            </p>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-                
-                {session?.user && observation.comments.length > 0 && (
-                  <div className="pt-4 border-t">
-                    <CommentForm observationId={observation.id} />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Privacy Level</p>
+                        <Badge variant="outline" className="font-medium">
+                          {observation.privacyLevel.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        Grid: {observation.grid1km}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Metadata */}
+                  <Card className="card-modern">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 text-sm">
+                      <div>
+                        <p className="text-slate-500 mb-1">Date Observed</p>
+                        <p className="font-semibold text-slate-900">{formatDate(observation.createdAt)}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-500 mb-1">Uploaded</p>
+                        <p className="font-medium text-slate-700">{formatRelativeTime(observation.createdAt)}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {!session?.user && (
+                    <Card className="card-modern bg-forest-50 border-forest-200">
+                      <CardContent className="py-8 text-center">
+                        <p className="text-forest-900 font-medium mb-4">
+                          Sign in to vote, propose identifications, and comment
+                        </p>
+                        <Link href="/auth/signin">
+                          <Button className="bg-forest-700 hover:bg-forest-800 rounded-full px-8">
+                            Sign In
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Status & Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Status</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Badge variant={observation.status === 'CONSENSUS' ? 'success' : 'warning'}>
-                  {statusLabels[observation.status]}
-                </Badge>
-                <div className="pt-2">
-                  <ShareButton
-                    observationId={observation.id}
-                    title={consensusSpecies ? `${consensusSpecies.commonEn} (${consensusSpecies.latinName})` : 'Mushroom Observation'}
-                    description={`Check out this mushroom observation ${consensusSpecies ? `identified as ${consensusSpecies.commonEn}` : ''} on Mushroom Map Ireland`}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Observed by</p>
-                  <Link href={`/profile/${observation.user.handle}`} className="font-medium hover:underline">
-                    @{observation.user.handle}
-                  </Link>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Date</p>
-                  <p className="font-medium">{formatDate(observation.createdAt)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Location</p>
-                  <p className="font-medium">
-                    {displayCoords.lat.toFixed(4)}, {displayCoords.lng.toFixed(4)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Grid: {observation.grid1km}</p>
-                  <Badge variant="outline" className="mt-1">
-                    {observation.privacyLevel.replace('_', ' ')}
-                  </Badge>
-                </div>
-                {observation.notes && (
-                  <div>
-                    <p className="text-muted-foreground">Notes</p>
-                    <p className="font-medium">{observation.notes}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Add Comment */}
-            {session?.user && observation.comments.length === 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Add Comment</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CommentForm observationId={observation.id} />
-                </CardContent>
-              </Card>
-            )}
-            
-            {!session?.user && (
-              <Card className="bg-blue-50 border-blue-200">
-                <CardContent className="py-6 text-center">
-                  <p className="text-sm text-gray-700 mb-3">
-                    Sign in to vote, propose identifications, and comment
-                  </p>
-                  <Link href="/auth/signin">
-                    <Button className="bg-forest-600 hover:bg-forest-700">
-                      Sign In
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
+        </section>
       </main>
     </div>
   );
 }
-

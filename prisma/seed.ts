@@ -14,6 +14,7 @@ const irishSpecies = [
     keyTraits:
       'White cap turning brown with age; pink gills becoming dark brown; white stem with ring; pleasant mushroom smell',
     sensitive: false,
+    heroImageUrl: 'https://images.unsplash.com/photo-1598254436016-fe66ce128e8d?w=800&q=80',
   },
   {
     latinName: 'Boletus edulis',
@@ -25,6 +26,7 @@ const irishSpecies = [
     habitat: 'Mixed woodland, especially under oak, beech, and conifers',
     keyTraits: 'Large brown cap; white then yellowish pores; thick white stem with fine network; excellent edible',
     sensitive: false,
+    heroImageUrl: 'https://images.unsplash.com/photo-1600106953190-a0e4cb9e2a76?w=800&q=80',
   },
   {
     latinName: 'Amanita muscaria',
@@ -36,6 +38,7 @@ const irishSpecies = [
     habitat: 'Birch and coniferous woodland',
     keyTraits: 'Iconic red cap with white spots; white gills; white stem with ring and bulbous base; TOXIC',
     sensitive: false,
+    heroImageUrl: 'https://images.unsplash.com/photo-1542224566-6e85f2e6772f?w=800&q=80',
   },
   {
     latinName: 'Amanita phalloides',
@@ -48,6 +51,7 @@ const irishSpecies = [
     keyTraits:
       'Greenish-yellow cap; white gills; white stem with ring and cup-like volva at base; DEADLY POISONOUS',
     sensitive: true,
+    heroImageUrl: 'https://images.unsplash.com/photo-1509587584298-0f3b3a3a1797?w=800&q=80',
   },
   {
     latinName: 'Cantharellus cibarius',
@@ -59,6 +63,7 @@ const irishSpecies = [
     habitat: 'Mixed woodland, especially oak and beech',
     keyTraits: 'Golden-yellow; funnel-shaped; false gills (ridges); fruity apricot smell; choice edible',
     sensitive: false,
+    heroImageUrl: 'https://images.unsplash.com/photo-1580473395973-c362a1e2b797?w=800&q=80',
   },
   {
     latinName: 'Coprinus comatus',
@@ -70,6 +75,7 @@ const irishSpecies = [
     habitat: 'Grassland, roadsides, disturbed ground',
     keyTraits: 'Tall white shaggy cap; deliquesces to black ink; edible when young',
     sensitive: false,
+    heroImageUrl: 'https://images.unsplash.com/photo-1617281479455-b55fa5d24d04?w=800&q=80',
   },
   {
     latinName: 'Lactarius deliciosus',
@@ -81,6 +87,7 @@ const irishSpecies = [
     habitat: 'Coniferous woodland, especially pine',
     keyTraits: 'Orange cap with darker zones; orange milk that turns green; edible and tasty',
     sensitive: false,
+    heroImageUrl: 'https://images.unsplash.com/photo-1603935039124-89867879e40c?w=800&q=80',
   },
   {
     latinName: 'Lepista nuda',
