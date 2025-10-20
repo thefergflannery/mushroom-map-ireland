@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export async function TopSpecies() {
   const topSpecies = await prisma.species.findMany({
-    take: 6,
+    take: 8,
     include: {
       identifications: {
         where: { isConsensus: true },
@@ -40,75 +40,47 @@ export async function TopSpecies() {
   }
 
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h3 className="text-3xl font-bold text-gray-900 mb-3">Most Identified Species</h3>
-          <p className="text-gray-600">
-            The mushrooms our community has spotted and identified most frequently
+    <section className="mb-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Most Identified Species</CardTitle>
+          <p className="text-sm text-gray-500">
+            Top mushrooms identified by our community
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {topSpecies.map((species, index) => (
             <Link key={species.id} href={`/species/${species.slug}`}>
-              <Card className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer group relative overflow-hidden">
-                {/* Rank Badge */}
-                {index < 3 && (
-                  <div className="absolute top-4 left-4 z-10">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-lg ${
-                      index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-amber-600'
-                    }`}>
-                      {index + 1}
-                    </div>
-                  </div>
-                )}
-
-                {species.heroImageUrl && (
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src={species.heroImageUrl}
-                      alt={species.commonEn}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                )}
-
-                <CardHeader>
-                  <CardTitle className="text-lg">
-                    <p className="italic text-gray-900">{species.latinName}</p>
-                    <p className="text-base font-medium text-gray-700 mt-1">{species.commonEn}</p>
-                    {species.commonGa && (
-                      <p className="text-sm text-gray-600 font-normal mt-1">{species.commonGa}</p>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <Badge className={`${edibilityColors[species.edibility]} text-white`}>
-                      {species.edibility}
-                    </Badge>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-forest-700">{species._count.identifications}</p>
-                      <p className="text-xs text-gray-500">observations</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="border rounded-lg p-3 hover:bg-gray-50 hover:border-green-500 transition-all cursor-pointer">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`text-lg font-bold ${
+                    index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-amber-600' : 'text-gray-600'
+                  }`}>
+                    #{index + 1}
+                  </span>
+                  <Badge className={`${edibilityColors[species.edibility]} text-white text-xs`}>
+                    {species.edibility}
+                  </Badge>
+                </div>
+                <p className="text-sm italic font-medium text-gray-900">{species.latinName}</p>
+                <p className="text-xs text-gray-600">{species.commonEn}</p>
+                <p className="text-xs font-bold text-green-700 mt-2">
+                  {species._count.identifications} IDs
+                </p>
+              </div>
             </Link>
           ))}
         </div>
-
-        <div className="text-center mt-8">
+        <div className="mt-4 text-center">
           <Link href="/species">
-            <button className="px-6 py-3 bg-forest-600 text-white rounded-lg hover:bg-forest-700 transition-colors font-medium">
+            <Button variant="outline" size="sm">
               View All Species →
-            </button>
+            </Button>
           </Link>
         </div>
-      </div>
+      </CardContent>
+    </Card>
     </section>
   );
 }
