@@ -14,25 +14,41 @@ const providers = [
 ];
 
 // Only add email provider if email server is configured
-if (process.env.EMAIL_SERVER_HOST && process.env.EMAIL_SERVER_USER && process.env.EMAIL_SERVER_PASSWORD) {
-  providers.push(
-    EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT) || 587,
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
+const emailConfig = {
+  host: process.env.EMAIL_SERVER_HOST,
+  port: Number(process.env.EMAIL_SERVER_PORT) || 587,
+  user: process.env.EMAIL_SERVER_USER,
+  pass: process.env.EMAIL_SERVER_PASSWORD,
+  from: process.env.EMAIL_FROM || 'noreply@beacain.ie',
+};
+
+if (emailConfig.host && emailConfig.user && emailConfig.pass) {
+  try {
+    providers.push(
+      EmailProvider({
+        server: {
+          host: emailConfig.host,
+          port: emailConfig.port,
+          auth: {
+            user: emailConfig.user,
+            pass: emailConfig.pass,
+          },
         },
-      },
-      from: process.env.EMAIL_FROM || 'noreply@beacain.ie',
-    })
-  );
+        from: emailConfig.from,
+      })
+    );
+    console.log('Email provider configured successfully');
+  } catch (error) {
+    console.error('Failed to configure email provider:', error);
+  }
+} else {
+  console.log('Email provider not configured - missing environment variables');
 }
 
 export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
   providers,
+  debug: process.env.NODE_ENV === 'development',
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
