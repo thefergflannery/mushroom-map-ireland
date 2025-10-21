@@ -1,6 +1,4 @@
-import NextAuth from '@/lib/auth';
-
-const handler = NextAuth;
+import { handler } from '@/lib/auth';
 
 export { handler as GET, handler as POST };
 

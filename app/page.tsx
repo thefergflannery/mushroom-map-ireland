@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { HeroCTA } from '@/components/home/hero-cta';
+import MapClient from '@/components/map/map-client';
 
 export default async function HomePage() {
   // Temporary: Use static data to isolate the issue
