@@ -22,30 +22,28 @@ const emailConfig = {
   from: process.env.EMAIL_FROM || 'noreply@beacain.ie',
 };
 
-// Temporarily disable email provider to test Google OAuth
-// if (emailConfig.host && emailConfig.user && emailConfig.pass) {
-//   try {
-//     providers.push(
-//       EmailProvider({
-//         server: {
-//           host: emailConfig.host,
-//           port: emailConfig.port,
-//           auth: {
-//             user: emailConfig.user,
-//             pass: emailConfig.pass,
-//           },
-//         },
-//         from: emailConfig.from,
-//       })
-//     );
-//     console.log('Email provider configured successfully');
-//   } catch (error) {
-//     console.error('Failed to configure email provider:', error);
-//   }
-// } else {
-//   console.log('Email provider not configured - missing environment variables');
-// }
-console.log('Email provider temporarily disabled for testing');
+if (emailConfig.host && emailConfig.user && emailConfig.pass) {
+  try {
+    providers.push(
+      EmailProvider({
+        server: {
+          host: emailConfig.host,
+          port: emailConfig.port,
+          auth: {
+            user: emailConfig.user,
+            pass: emailConfig.pass,
+          },
+        },
+        from: emailConfig.from,
+      })
+    );
+    console.log('Email provider configured successfully');
+  } catch (error) {
+    console.error('Failed to configure email provider:', error);
+  }
+} else {
+  console.log('Email provider not configured - missing environment variables');
+}
 
 export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
@@ -55,6 +53,33 @@ export const authOptions: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'database',
+  },
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('SignIn event:', { 
+        email: user.email, 
+        provider: account?.provider,
+        isNewUser 
+      });
+    },
+    async signOut({ session, token }) {
+      console.log('SignOut event:', { 
+        userId: session?.user?.id 
+      });
+    },
+    async createUser({ user }) {
+      console.log('CreateUser event:', { 
+        email: user.email,
+        id: user.id 
+      });
+    },
+    async linkAccount({ user, account, profile }) {
+      console.log('LinkAccount event:', { 
+        email: user.email,
+        provider: account.provider,
+        accountId: account.providerAccountId 
+      });
+    },
   },
   callbacks: {
     async session({ session, user }) {
@@ -79,7 +104,8 @@ export const authOptions: NextAuthConfig = {
       console.log('SignIn callback triggered:', { 
         email: user.email, 
         provider: account?.provider,
-        userId: user.id 
+        userId: user.id,
+        accountId: account?.providerAccountId
       });
       
       if (!user.email) {
@@ -123,6 +149,19 @@ export const authOptions: NextAuthConfig = {
           console.log('SignIn: User created successfully');
         } else {
           console.log('SignIn: User already exists:', existingUser.handle);
+          
+          // Check if this account is already linked
+          const existingAccount = await prisma.account.findFirst({
+            where: {
+              userId: existingUser.id,
+              provider: account?.provider,
+            },
+          });
+          
+          if (!existingAccount && account) {
+            console.log('SignIn: Linking new account to existing user');
+            // The Prisma adapter will handle account creation
+          }
         }
         
         return true;
