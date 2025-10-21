@@ -35,6 +35,49 @@ if (emailConfig.host && emailConfig.user && emailConfig.pass) {
           },
         },
         from: emailConfig.from,
+        // Custom email template using Resend API
+        sendVerificationRequest: async ({ identifier: email, url, provider }) => {
+          console.log('Sending verification email to:', email);
+          console.log('Verification URL:', url);
+          
+          try {
+            const response = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${emailConfig.pass}`,
+              },
+              body: JSON.stringify({
+                from: emailConfig.from,
+                to: [email],
+                subject: `Sign in to Beacáin`,
+                html: `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #2d6f54;">Sign in to Beacáin</h2>
+                    <p>Click the link below to sign in to your account:</p>
+                    <a href="${url}" style="background-color: #2d6f54; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Sign In</a>
+                    <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                      If you didn't request this email, you can safely ignore it.
+                    </p>
+                    <p style="color: #666; font-size: 12px;">
+                      This link will expire in 24 hours.
+                    </p>
+                  </div>
+                `,
+              }),
+            });
+            
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`Email send failed: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+            
+            console.log('Verification email sent successfully');
+          } catch (error) {
+            console.error('Failed to send verification email:', error);
+            throw error;
+          }
+        },
       })
     );
     console.log('Email provider configured successfully');
