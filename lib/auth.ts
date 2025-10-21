@@ -22,28 +22,30 @@ const emailConfig = {
   from: process.env.EMAIL_FROM || 'noreply@beacain.ie',
 };
 
-if (emailConfig.host && emailConfig.user && emailConfig.pass) {
-  try {
-    providers.push(
-      EmailProvider({
-        server: {
-          host: emailConfig.host,
-          port: emailConfig.port,
-          auth: {
-            user: emailConfig.user,
-            pass: emailConfig.pass,
-          },
-        },
-        from: emailConfig.from,
-      })
-    );
-    console.log('Email provider configured successfully');
-  } catch (error) {
-    console.error('Failed to configure email provider:', error);
-  }
-} else {
-  console.log('Email provider not configured - missing environment variables');
-}
+// Temporarily disable email provider to test Google OAuth
+// if (emailConfig.host && emailConfig.user && emailConfig.pass) {
+//   try {
+//     providers.push(
+//       EmailProvider({
+//         server: {
+//           host: emailConfig.host,
+//           port: emailConfig.port,
+//           auth: {
+//             user: emailConfig.user,
+//             pass: emailConfig.pass,
+//           },
+//         },
+//         from: emailConfig.from,
+//       })
+//     );
+//     console.log('Email provider configured successfully');
+//   } catch (error) {
+//     console.error('Failed to configure email provider:', error);
+//   }
+// } else {
+//   console.log('Email provider not configured - missing environment variables');
+// }
+console.log('Email provider temporarily disabled for testing');
 
 export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
