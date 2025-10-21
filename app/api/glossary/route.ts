@@ -1,49 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { glossarySearchSchema } from '@/lib/validations';
-import { z } from 'zod';
 
-/**
- * GET /api/glossary
- * Search Irish mushroom terms
- */
-export async function GET(request: NextRequest) {
+// GET /api/glossary - Get all glossary terms
+export async function GET() {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const params = glossarySearchSchema.parse({
-      q: searchParams.get('q') || undefined,
-      region: searchParams.get('region') || undefined,
-      limit: parseInt(searchParams.get('limit') || '20'),
-    });
-
-    const where: any = {};
-
-    if (params.q) {
-      where.OR = [
-        { termGa: { contains: params.q, mode: 'insensitive' } },
-        { meaning: { contains: params.q, mode: 'insensitive' } },
-        { variants: { has: params.q } },
-      ];
-    }
-
-    if (params.region) {
-      where.regions = { has: params.region };
-    }
-
     const terms = await prisma.glossary.findMany({
-      where,
-      take: params.limit,
       orderBy: { termGa: 'asc' },
     });
 
-    return NextResponse.json({ data: terms });
+    return NextResponse.json({ success: true, data: terms });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid parameters', details: error.errors }, { status: 400 });
-    }
-
-    console.error('Error fetching glossary:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error fetching glossary terms:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch glossary terms' },
+      { status: 500 }
+    );
   }
 }
 
+// POST /api/glossary - Create new glossary term
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userRole = (session.user as any).role;
+    if (userRole !== 'ADMIN' && userRole !== 'MODERATOR') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { termGa, meaning, category, variants, regions, sources, audioUrl } = body;
+
+    const term = await prisma.glossary.create({
+      data: {
+        termGa,
+        meaning,
+        category: category || null,
+        variants: variants || [],
+        regions: regions || [],
+        sources: sources || [],
+        audioUrl: audioUrl || null,
+      },
+    });
+
+    return NextResponse.json({ success: true, data: term });
+  } catch (error) {
+    console.error('Error creating glossary term:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to create glossary term' },
+      { status: 500 }
+    );
+  }
+}

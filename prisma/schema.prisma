@@ -222,8 +222,9 @@ model ObservationTag {
 model Glossary {
   id       String   @id @default(cuid())
   termGa   String
-  variants String[] @default([])
   meaning  String
+  category String?
+  variants String[] @default([])
   regions  String[] @default([])
   sources  String[] @default([])
   audioUrl String?
