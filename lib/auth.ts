@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthConfig } from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@auth/prisma-adapter';
@@ -47,14 +47,14 @@ const emailConfig = {
 // }
 console.log('Email provider temporarily disabled for testing');
 
-export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers,
   debug: true,
   trustHost: true,
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: 'jwt',
+    strategy: 'database',
   },
   events: {
     async signIn({ user, account, profile, isNewUser }) {
@@ -118,13 +118,11 @@ export const authOptions: NextAuthConfig = {
     },
   },
   callbacks: {
-    async session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
-        
-        // Get user data from database
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id;
         const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
+          where: { id: user.id },
           select: { role: true, handle: true, reputation: true },
         });
         
@@ -137,12 +135,6 @@ export const authOptions: NextAuthConfig = {
         }
       }
       return session;
-    },
-    async jwt({ token, user, account }) {
-      if (user) {
-        token.sub = user.id;
-      }
-      return token;
     },
     async signIn({ user, account, profile }) {
       console.log('SignIn callback triggered:', { 
@@ -180,5 +172,21 @@ export const authOptions: NextAuthConfig = {
   },
 };
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };
+
+// Helper functions for NextAuth v4
+export const auth = async () => {
+  const { getServerSession } = await import('next-auth');
+  return getServerSession(authOptions);
+};
+
+export const signIn = async (provider?: string, options?: any) => {
+  return handler.signIn(provider, options);
+};
+
+export const signOut = async (options?: any) => {
+  return handler.signOut(options);
+};
 

@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
-import { SessionProvider } from 'next-auth/react';
+import { AuthProvider } from '@/components/auth/auth-provider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn('min-h-screen bg-background font-sans antialiased', inter.variable)}>
-        <SessionProvider>
+        <AuthProvider>
           <a href="#main-content" className="skip-to-content">
             Skip to main content
           </a>
@@ -40,7 +40,7 @@ export default function RootLayout({
             {children}
           </div>
           <Toaster />
-        </SessionProvider>
+        </AuthProvider>
       </body>
     </html>
   );
