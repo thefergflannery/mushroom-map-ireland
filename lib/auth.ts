@@ -48,7 +48,7 @@ if (emailConfig.host && emailConfig.user && emailConfig.pass) {
 export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
   providers,
-  debug: process.env.NODE_ENV === 'development',
+  debug: true, // Enable debug for production to see what's happening
   allowDangerousEmailAccountLinking: true,
   trustHost: true,
   callbacks: {
@@ -71,14 +71,18 @@ export const authOptions: NextAuthConfig = {
       return session;
     },
     async signIn({ user, account, profile }) {
+      console.log('SignIn callback triggered:', { 
+        email: user.email, 
+        provider: account?.provider,
+        userId: user.id 
+      });
+      
       if (!user.email) {
         console.log('SignIn: No email provided');
         return false;
       }
       
       try {
-        console.log('SignIn: Processing user:', user.email, 'with account:', account?.provider);
-        
         // Check if user exists in our custom User table
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
