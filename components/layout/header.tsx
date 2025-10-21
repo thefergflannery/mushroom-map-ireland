@@ -1,17 +1,13 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { auth } from '@/lib/auth';
 import { UserMenu } from '@/components/auth/user-menu';
 import { MobileNav } from '@/components/ui/mobile-nav';
+import { useSession } from 'next-auth/react';
 
-export async function Header() {
-  let session = null;
-  
-  try {
-    session = await auth();
-  } catch (error) {
-    console.error('Auth error in header:', error);
-  }
+export function Header() {
+  const { data: session, status } = useSession();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">

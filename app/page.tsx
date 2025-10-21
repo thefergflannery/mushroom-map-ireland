@@ -4,8 +4,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
 import MapClient from '@/components/map/map-client';
+import { HeroCTA } from '@/components/home/hero-cta';
 
 async function getRecentObservations() {
   const observations = await prisma.observation.findMany({
@@ -41,12 +41,6 @@ async function getStats() {
 }
 
 export default async function HomePage() {
-  let session = null;
-  try {
-    session = await auth();
-  } catch (error) {
-    console.error('Auth error on homepage:', error);
-  }
   
   const [observations, stats] = await Promise.all([
     getRecentObservations(),
@@ -108,26 +102,11 @@ export default async function HomePage() {
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4 mb-12">
-              {session?.user ? (
-                <>
-                  <Link href="/observe" className="btn-primary">
-                    <span className="text-2xl">📸</span>
-                    Submit Your Find
-                  </Link>
-                  <Link href="/map" className="btn-outline">
-                    Explore the Map
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/auth/signin" className="btn-primary">
-                    Get Started
-                  </Link>
-                  <Link href="/species" className="btn-outline">
-                    Browse Species
-                  </Link>
-                </>
-              )}
+              <HeroCTA 
+                observationCount={stats.observationCount}
+                speciesCount={stats.speciesCount}
+                userCount={stats.userCount}
+              />
             </div>
 
             {/* Stats Bar */}
