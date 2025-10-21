@@ -52,7 +52,7 @@ export const authOptions: NextAuthConfig = {
   trustHost: true,
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: 'database',
+    strategy: 'jwt',
   },
   events: {
     async signIn({ user, account, profile, isNewUser }) {
@@ -116,11 +116,13 @@ export const authOptions: NextAuthConfig = {
     },
   },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
+        
+        // Get user data from database
         const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
+          where: { id: token.sub },
           select: { role: true, handle: true, reputation: true },
         });
         
@@ -133,6 +135,12 @@ export const authOptions: NextAuthConfig = {
         }
       }
       return session;
+    },
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
     },
     async signIn({ user, account, profile }) {
       console.log('SignIn callback triggered:', { 
