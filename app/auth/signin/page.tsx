@@ -8,7 +8,7 @@ import { auth } from '@/lib/auth';
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: { callbackUrl?: string; error?: string };
+  searchParams: { callbackUrl?: string; error?: string; verify?: string };
 }) {
   const session = await auth();
   
@@ -36,6 +36,12 @@ export default async function SignInPage({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {searchParams.verify && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                ✓ Check your email! We sent you a sign-in link.
+              </div>
+            )}
+
             {searchParams.error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                 {searchParams.error === 'OAuthSignin' && 'Error signing in with provider'}
@@ -44,12 +50,58 @@ export default async function SignInPage({
                 {searchParams.error === 'EmailCreateAccount' && 'Could not create account'}
                 {searchParams.error === 'Callback' && 'Authentication error'}
                 {searchParams.error === 'OAuthAccountNotLinked' && 'Account already exists with different provider'}
-                {searchParams.error === 'EmailSignin' && 'Error sending email'}
+                {searchParams.error === 'EmailSignin' && 'Error sending email. Please try again.'}
                 {searchParams.error === 'CredentialsSignin' && 'Sign in failed'}
                 {searchParams.error === 'SessionRequired' && 'Please sign in to continue'}
                 {!searchParams.error.match(/OAuth|Email|Credentials|Session/) && 'Authentication error occurred'}
               </div>
             )}
+
+            {/* Email Magic Link */}
+            <form
+              action={async (formData: FormData) => {
+                'use server';
+                const email = formData.get('email');
+                await signIn('email', {
+                  email,
+                  redirectTo: searchParams.callbackUrl || '/',
+                });
+              }}
+              className="space-y-3"
+            >
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                  Email address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  placeholder="your@email.com"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-700 focus:border-transparent"
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-forest-700 hover:bg-forest-800 h-12 text-base font-medium"
+              >
+                Sign in with Email
+              </Button>
+              <p className="text-xs text-center text-gray-500">
+                We'll send you a magic link to sign in
+              </p>
+            </form>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              </div>
+            </div>
 
             {/* Google Sign In */}
             <form
@@ -87,32 +139,6 @@ export default async function SignInPage({
               </Button>
             </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Coming soon</span>
-              </div>
-            </div>
-
-            {/* Email Magic Link (Coming Soon) */}
-            <div className="space-y-2 opacity-50">
-              <input
-                type="email"
-                placeholder="your@email.com"
-                disabled
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-              />
-              <Button
-                disabled
-                variant="outline"
-                className="w-full"
-              >
-                Sign in with Email (Coming Soon)
-              </Button>
-            </div>
-
             <div className="text-xs text-center text-gray-500 space-y-2">
               <p>
                 By signing in, you agree to our{' '}
@@ -137,4 +163,3 @@ export default async function SignInPage({
     </div>
   );
 }
-
