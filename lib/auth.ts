@@ -119,7 +119,34 @@ export const authOptions: NextAuthConfig = {
           where: { email: user.email },
         });
         
-        if (!existingUser) {
+        if (existingUser) {
+          console.log('SignIn: User already exists in custom table:', existingUser.handle);
+          
+          // If the NextAuth user ID is different from our custom user ID,
+          // we need to merge them
+          if (existingUser.id !== user.id) {
+            console.log('SignIn: Merging accounts - NextAuth user:', user.id, 'Custom user:', existingUser.id);
+            
+            // Update all accounts to point to the existing custom user
+            await prisma.account.updateMany({
+              where: { userId: user.id },
+              data: { userId: existingUser.id },
+            });
+            
+            // Update all sessions to point to the existing custom user
+            await prisma.session.updateMany({
+              where: { userId: user.id },
+              data: { userId: existingUser.id },
+            });
+            
+            // Delete the duplicate NextAuth user
+            await prisma.user.delete({
+              where: { id: user.id },
+            });
+            
+            console.log('SignIn: Account merge completed');
+          }
+        } else {
           console.log('SignIn: Creating new user for:', user.email);
           
           // Generate unique handle
@@ -137,9 +164,10 @@ export const authOptions: NextAuthConfig = {
             suffix++;
           }
           
-          await prisma.user.create({
+          // Update the NextAuth user with our custom fields
+          await prisma.user.update({
+            where: { id: user.id },
             data: {
-              email: user.email,
               handle,
               role: 'USER',
               reputation: 0,
@@ -147,26 +175,67 @@ export const authOptions: NextAuthConfig = {
           });
           
           console.log('SignIn: User created successfully');
-        } else {
-          console.log('SignIn: User already exists:', existingUser.handle);
-          
-          // Check if this account is already linked
-          const existingAccount = await prisma.account.findFirst({
-            where: {
-              userId: existingUser.id,
-              provider: account?.provider,
-            },
-          });
-          
-          if (!existingAccount && account) {
-            console.log('SignIn: Linking new account to existing user');
-            // The Prisma adapter will handle account creation
-          }
         }
         
         return true;
       } catch (error) {
         console.error('SignIn callback error:', error);
+        return false;
+      }
+    },
+    async linkAccount({ user, account, profile }) {
+      console.log('LinkAccount callback triggered:', {
+        email: user.email,
+        provider: account.provider,
+        accountId: account.providerAccountId,
+        userId: user.id
+      });
+      
+      try {
+        // Check if this account is already linked to a different user
+        const existingAccount = await prisma.account.findFirst({
+          where: {
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+          },
+        });
+        
+        if (existingAccount && existingAccount.userId !== user.id) {
+          console.log('LinkAccount: Account already linked to different user, merging...');
+          
+          // Find the user this account is linked to
+          const linkedUser = await prisma.user.findUnique({
+            where: { id: existingAccount.userId },
+          });
+          
+          if (linkedUser && linkedUser.email === user.email) {
+            // Same email, merge the users
+            console.log('LinkAccount: Merging users with same email');
+            
+            // Update all accounts to point to the current user
+            await prisma.account.updateMany({
+              where: { userId: linkedUser.id },
+              data: { userId: user.id },
+            });
+            
+            // Update all sessions to point to the current user
+            await prisma.session.updateMany({
+              where: { userId: linkedUser.id },
+              data: { userId: user.id },
+            });
+            
+            // Delete the duplicate user
+            await prisma.user.delete({
+              where: { id: linkedUser.id },
+            });
+            
+            console.log('LinkAccount: User merge completed');
+          }
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('LinkAccount callback error:', error);
         return false;
       }
     },
