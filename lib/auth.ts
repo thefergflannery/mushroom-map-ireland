@@ -1,4 +1,5 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
+import { getServerSession } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@auth/prisma-adapter';
@@ -178,7 +179,6 @@ export { handler as GET, handler as POST };
 
 // Helper functions for NextAuth v4
 export const auth = async () => {
-  const { getServerSession } = await import('next-auth');
   return getServerSession(authOptions);
 };
 
