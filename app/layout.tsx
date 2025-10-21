@@ -4,6 +4,7 @@ import './globals.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
+import { Header } from '@/components/layout/header';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -32,8 +33,11 @@ export default function RootLayout({
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
+        <Header />
+        <div className="pt-20" id="main-content">
+          {children}
+        </div>
         <Toaster />
-        {children}
       </body>
     </html>
   );

@@ -45,13 +45,13 @@ export default async function SpeciesGuidePage() {
               </Button>
             </Link>
             
-            <h1 className="heading-display text-white mb-6 text-shadow-lg">
+            <h1 className="heading-display text-white mb-6">
               Irish Mushroom
               <br />
               Species Guide
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/90 max-w-2xl leading-relaxed text-shadow">
+            <p className="text-xl md:text-2xl text-white/90 max-w-2xl leading-relaxed">
               Explore {species.length} mushroom species found across Ireland. From choice edibles to deadly poisonous varieties,
               learn to identify each species safely.
             </p>
