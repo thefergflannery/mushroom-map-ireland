@@ -13,3 +13,4 @@ export async function GET() {
     googleClientSecretLength: process.env.GOOGLE_CLIENT_SECRET?.length || 0,
   });
 }
+
