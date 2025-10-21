@@ -72,6 +72,40 @@ export const authOptions: NextAuthConfig = {
         email: user.email,
         id: user.id 
       });
+      
+      try {
+        // Add custom fields to the user created by Prisma adapter
+        const handle = generateHandle(user.email);
+        let finalHandle = handle;
+        
+        // Check if handle exists and make it unique
+        let handleExists = await prisma.user.findUnique({
+          where: { handle: finalHandle },
+        });
+        
+        let suffix = 1;
+        while (handleExists) {
+          finalHandle = `${handle}-${suffix}`;
+          handleExists = await prisma.user.findUnique({
+            where: { handle: finalHandle },
+          });
+          suffix++;
+        }
+        
+        // Update the user with our custom fields
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            handle: finalHandle,
+            role: 'USER',
+            reputation: 0,
+          },
+        });
+        
+        console.log('CreateUser: Added custom fields - handle:', finalHandle);
+      } catch (error) {
+        console.error('CreateUser event error:', error);
+      }
     },
     async linkAccount({ user, account, profile }) {
       console.log('LinkAccount event:', { 
@@ -113,75 +147,9 @@ export const authOptions: NextAuthConfig = {
         return false;
       }
       
-      try {
-        // Check if user exists in our custom User table
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email },
-        });
-        
-        if (existingUser) {
-          console.log('SignIn: User already exists in custom table:', existingUser.handle);
-          
-          // If the NextAuth user ID is different from our custom user ID,
-          // we need to merge them
-          if (existingUser.id !== user.id) {
-            console.log('SignIn: Merging accounts - NextAuth user:', user.id, 'Custom user:', existingUser.id);
-            
-            // Update all accounts to point to the existing custom user
-            await prisma.account.updateMany({
-              where: { userId: user.id },
-              data: { userId: existingUser.id },
-            });
-            
-            // Update all sessions to point to the existing custom user
-            await prisma.session.updateMany({
-              where: { userId: user.id },
-              data: { userId: existingUser.id },
-            });
-            
-            // Delete the duplicate NextAuth user
-            await prisma.user.delete({
-              where: { id: user.id },
-            });
-            
-            console.log('SignIn: Account merge completed');
-          }
-        } else {
-          console.log('SignIn: Creating new user for:', user.email);
-          
-          // Generate unique handle
-          let handle = generateHandle(user.email);
-          let handleExists = await prisma.user.findUnique({
-            where: { handle },
-          });
-          
-          let suffix = 1;
-          while (handleExists) {
-            handle = `${generateHandle(user.email)}-${suffix}`;
-            handleExists = await prisma.user.findUnique({
-              where: { handle },
-            });
-            suffix++;
-          }
-          
-          // Update the NextAuth user with our custom fields
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              handle,
-              role: 'USER',
-              reputation: 0,
-            },
-          });
-          
-          console.log('SignIn: User created successfully');
-        }
-        
-        return true;
-      } catch (error) {
-        console.error('SignIn callback error:', error);
-        return false;
-      }
+      // Always allow sign-in - let the Prisma adapter handle user creation
+      // We'll add custom fields in the events
+      return true;
     },
     async linkAccount({ user, account, profile }) {
       console.log('LinkAccount callback triggered:', {
@@ -191,53 +159,8 @@ export const authOptions: NextAuthConfig = {
         userId: user.id
       });
       
-      try {
-        // Check if this account is already linked to a different user
-        const existingAccount = await prisma.account.findFirst({
-          where: {
-            provider: account.provider,
-            providerAccountId: account.providerAccountId,
-          },
-        });
-        
-        if (existingAccount && existingAccount.userId !== user.id) {
-          console.log('LinkAccount: Account already linked to different user, merging...');
-          
-          // Find the user this account is linked to
-          const linkedUser = await prisma.user.findUnique({
-            where: { id: existingAccount.userId },
-          });
-          
-          if (linkedUser && linkedUser.email === user.email) {
-            // Same email, merge the users
-            console.log('LinkAccount: Merging users with same email');
-            
-            // Update all accounts to point to the current user
-            await prisma.account.updateMany({
-              where: { userId: linkedUser.id },
-              data: { userId: user.id },
-            });
-            
-            // Update all sessions to point to the current user
-            await prisma.session.updateMany({
-              where: { userId: linkedUser.id },
-              data: { userId: user.id },
-            });
-            
-            // Delete the duplicate user
-            await prisma.user.delete({
-              where: { id: linkedUser.id },
-            });
-            
-            console.log('LinkAccount: User merge completed');
-          }
-        }
-        
-        return true;
-      } catch (error) {
-        console.error('LinkAccount callback error:', error);
-        return false;
-      }
+      // Let the Prisma adapter handle account linking
+      return true;
     },
   },
   pages: {
