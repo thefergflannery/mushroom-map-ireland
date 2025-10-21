@@ -50,6 +50,7 @@ export const authOptions: NextAuthConfig = {
   providers,
   debug: process.env.NODE_ENV === 'development',
   allowDangerousEmailAccountLinking: true,
+  trustHost: true,
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
@@ -70,15 +71,22 @@ export const authOptions: NextAuthConfig = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      if (!user.email) return false;
+      if (!user.email) {
+        console.log('SignIn: No email provided');
+        return false;
+      }
       
       try {
+        console.log('SignIn: Processing user:', user.email, 'with account:', account?.provider);
+        
         // Check if user exists in our custom User table
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
         });
         
         if (!existingUser) {
+          console.log('SignIn: Creating new user for:', user.email);
+          
           // Generate unique handle
           let handle = generateHandle(user.email);
           let handleExists = await prisma.user.findUnique({
@@ -102,6 +110,10 @@ export const authOptions: NextAuthConfig = {
               reputation: 0,
             },
           });
+          
+          console.log('SignIn: User created successfully');
+        } else {
+          console.log('SignIn: User already exists:', existingUser.handle);
         }
         
         return true;
