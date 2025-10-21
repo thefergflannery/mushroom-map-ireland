@@ -41,9 +41,15 @@ async function getStats() {
 }
 
 export default async function HomePage() {
-  const [observations, session, stats] = await Promise.all([
+  let session = null;
+  try {
+    session = await auth();
+  } catch (error) {
+    console.error('Auth error on homepage:', error);
+  }
+  
+  const [observations, stats] = await Promise.all([
     getRecentObservations(),
-    auth(),
     getStats(),
   ]);
 
@@ -61,56 +67,7 @@ export default async function HomePage() {
   }));
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Minimal Header - Urban ReLeaf style */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
-        <div className="container-modern">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center gap-3 group">
-              <span className="text-3xl group-hover:scale-110 transition-transform">🍄</span>
-              <div>
-                <span className="text-2xl font-bold text-forest-900 tracking-tight">Beacáin</span>
-                <span className="block text-xs text-slate-600 tracking-wide uppercase">Ireland Mushroom Map</span>
-              </div>
-            </Link>
-            
-            <nav className="hidden lg:flex items-center gap-8">
-              <Link href="/map" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors">
-                Map
-              </Link>
-              <Link href="/species" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors">
-                Species
-              </Link>
-              <Link href="/glossary" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors">
-                Glossary
-              </Link>
-              <Link href="/about" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors">
-                About
-              </Link>
-              {session?.user ? (
-                <>
-                  <Link href="/observe">
-                    <Button className="bg-forest-700 hover:bg-forest-800 text-white rounded-full px-6 shadow-lg">
-                      Add Observation
-                    </Button>
-                  </Link>
-                  <UserMenu user={session.user} />
-                </>
-              ) : (
-                <Link href="/auth/signin">
-                  <Button variant="outline" className="rounded-full px-6">
-                    Sign In
-                  </Button>
-                </Link>
-              )}
-            </nav>
-            <MobileNav />
-          </div>
-        </div>
-      </header>
-
-      {/* Spacer for fixed header */}
-      <div className="h-20"></div>
+    <div className="min-h-screen bg-slate-50 -mt-20">
 
       {/* Hero Section - Full bleed photography */}
       <section className="relative h-[85vh] min-h-[600px] overflow-hidden">
