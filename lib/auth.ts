@@ -46,29 +46,50 @@ if (emailConfig.host && emailConfig.user && emailConfig.pass) {
 }
 
 export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
+  // Temporarily disable Prisma adapter to test if that's causing issues
+  // adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
   providers,
   debug: true, // Enable debug for production to see what's happening
   allowDangerousEmailAccountLinking: true,
   trustHost: true,
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: 'jwt', // Use JWT instead of database sessions
+  },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { role: true, handle: true, reputation: true },
-        });
+    async session({ session, token }) {
+      if (session.user && token) {
+        session.user.id = token.sub!;
         
-        if (dbUser && session.user) {
-          Object.assign(session.user, {
-            role: dbUser.role,
-            handle: dbUser.handle,
-            reputation: dbUser.reputation,
+        // Get user data from database
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: session.user.email! },
+            select: {
+              id: true,
+              handle: true,
+              role: true,
+              reputation: true,
+            },
           });
+          
+          if (dbUser) {
+            session.user.id = dbUser.id;
+            session.user.handle = dbUser.handle;
+            session.user.role = dbUser.role;
+            session.user.reputation = dbUser.reputation;
+          }
+        } catch (error) {
+          console.error('Error fetching user data in session callback:', error);
         }
       }
       return session;
+    },
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
     },
     async signIn({ user, account, profile }) {
       console.log('SignIn callback triggered:', { 
@@ -131,9 +152,6 @@ export const authOptions: NextAuthConfig = {
     signIn: '/auth/signin',
     error: '/auth/error',
     verifyRequest: '/auth/verify-request',
-  },
-  session: {
-    strategy: 'database',
   },
 };
 
