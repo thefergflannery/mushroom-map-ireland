@@ -57,51 +57,60 @@ export default async function SignInPage({
               </div>
             )}
 
-            {/* Email Magic Link */}
-            <form
-              action={async (formData: FormData) => {
-                'use server';
-                const email = formData.get('email');
-                await signIn('email', {
-                  email,
-                  redirectTo: searchParams.callbackUrl || '/',
-                });
-              }}
-              className="space-y-3"
-            >
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
-                  Email address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-700 focus:border-transparent"
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-forest-700 hover:bg-forest-800 h-12 text-base font-medium"
-              >
-                Sign in with Email
-              </Button>
-              <p className="text-xs text-center text-gray-500">
-                We'll send you a magic link to sign in
-              </p>
-            </form>
+            {/* Email Magic Link - Only show if email provider is configured */}
+            {process.env.EMAIL_SERVER_HOST && process.env.EMAIL_SERVER_USER && process.env.EMAIL_SERVER_PASSWORD ? (
+              <>
+                <form
+                  action={async (formData: FormData) => {
+                    'use server';
+                    const email = formData.get('email');
+                    await signIn('email', {
+                      email,
+                      redirectTo: searchParams.callbackUrl || '/',
+                    });
+                  }}
+                  className="space-y-3"
+                >
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium mb-2">
+                      Email address
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      placeholder="your@email.com"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-700 focus:border-transparent"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full bg-forest-700 hover:bg-forest-800 h-12 text-base font-medium"
+                  >
+                    Sign in with Email
+                  </Button>
+                  <p className="text-xs text-center text-gray-500">
+                    We'll send you a magic link to sign in
+                  </p>
+                </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm text-center">
+                <p className="font-medium mb-1">Email sign-in not configured</p>
+                <p>Please use Google sign-in or contact support to enable email authentication.</p>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Or continue with</span>
-              </div>
-            </div>
+            )}
 
             {/* Google Sign In */}
             <form

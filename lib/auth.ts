@@ -5,25 +5,34 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './prisma';
 import { generateHandle } from './utils';
 
-export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
+// Build providers array conditionally
+const providers = [
+  GoogleProvider({
+    clientId: process.env.GOOGLE_CLIENT_ID || '',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+  }),
+];
+
+// Only add email provider if email server is configured
+if (process.env.EMAIL_SERVER_HOST && process.env.EMAIL_SERVER_USER && process.env.EMAIL_SERVER_PASSWORD) {
+  providers.push(
     EmailProvider({
       server: {
         host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT),
+        port: Number(process.env.EMAIL_SERVER_PORT) || 587,
         auth: {
           user: process.env.EMAIL_SERVER_USER,
           pass: process.env.EMAIL_SERVER_PASSWORD,
         },
       },
       from: process.env.EMAIL_FROM || 'noreply@beacain.ie',
-    }),
-  ],
+    })
+  );
+}
+
+export const authOptions: NextAuthConfig = {
+  adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
+  providers,
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
