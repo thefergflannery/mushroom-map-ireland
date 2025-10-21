@@ -49,6 +49,7 @@ export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as NextAuthConfig['adapter'],
   providers,
   debug: process.env.NODE_ENV === 'development',
+  allowDangerousEmailAccountLinking: true,
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
@@ -68,41 +69,46 @@ export const authOptions: NextAuthConfig = {
       }
       return session;
     },
-    async signIn({ user }) {
+    async signIn({ user, account, profile }) {
       if (!user.email) return false;
       
-      // Create user if doesn't exist
-      const existingUser = await prisma.user.findUnique({
-        where: { email: user.email },
-      });
-      
-      if (!existingUser) {
-        // Generate unique handle
-        let handle = generateHandle(user.email);
-        let handleExists = await prisma.user.findUnique({
-          where: { handle },
+      try {
+        // Check if user exists in our custom User table
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
         });
         
-        let suffix = 1;
-        while (handleExists) {
-          handle = `${generateHandle(user.email)}-${suffix}`;
-          handleExists = await prisma.user.findUnique({
+        if (!existingUser) {
+          // Generate unique handle
+          let handle = generateHandle(user.email);
+          let handleExists = await prisma.user.findUnique({
             where: { handle },
           });
-          suffix++;
+          
+          let suffix = 1;
+          while (handleExists) {
+            handle = `${generateHandle(user.email)}-${suffix}`;
+            handleExists = await prisma.user.findUnique({
+              where: { handle },
+            });
+            suffix++;
+          }
+          
+          await prisma.user.create({
+            data: {
+              email: user.email,
+              handle,
+              role: 'USER',
+              reputation: 0,
+            },
+          });
         }
         
-        await prisma.user.create({
-          data: {
-            email: user.email,
-            handle,
-            role: 'USER',
-            reputation: 0,
-          },
-        });
+        return true;
+      } catch (error) {
+        console.error('SignIn callback error:', error);
+        return false;
       }
-      
-      return true;
     },
   },
   pages: {

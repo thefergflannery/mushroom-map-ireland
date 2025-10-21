@@ -43,17 +43,67 @@ export default async function SignInPage({
             )}
 
             {searchParams.error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                {searchParams.error === 'OAuthSignin' && 'Error signing in with provider'}
-                {searchParams.error === 'OAuthCallback' && 'Error in OAuth callback'}
-                {searchParams.error === 'OAuthCreateAccount' && 'Could not create account'}
-                {searchParams.error === 'EmailCreateAccount' && 'Could not create account'}
-                {searchParams.error === 'Callback' && 'Authentication error'}
-                {searchParams.error === 'OAuthAccountNotLinked' && 'Account already exists with different provider'}
-                {searchParams.error === 'EmailSignin' && 'Error sending email. Please try again.'}
-                {searchParams.error === 'CredentialsSignin' && 'Sign in failed'}
-                {searchParams.error === 'SessionRequired' && 'Please sign in to continue'}
-                {!searchParams.error.match(/OAuth|Email|Credentials|Session/) && 'Authentication error occurred'}
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {searchParams.error === 'OAuthSignin' && (
+                  <div>
+                    <p className="font-semibold mb-2">Error signing in with provider</p>
+                    <p>There was an issue with the authentication provider. Please try again.</p>
+                  </div>
+                )}
+                {searchParams.error === 'OAuthCallback' && (
+                  <div>
+                    <p className="font-semibold mb-2">Authentication callback error</p>
+                    <p>There was an issue processing your sign-in. Please try again.</p>
+                  </div>
+                )}
+                {searchParams.error === 'OAuthCreateAccount' && (
+                  <div>
+                    <p className="font-semibold mb-2">Could not create account</p>
+                    <p>There was an issue creating your account. Please try again or contact support.</p>
+                  </div>
+                )}
+                {searchParams.error === 'EmailCreateAccount' && (
+                  <div>
+                    <p className="font-semibold mb-2">Could not create account</p>
+                    <p>There was an issue creating your account. Please try again or contact support.</p>
+                  </div>
+                )}
+                {searchParams.error === 'Callback' && (
+                  <div>
+                    <p className="font-semibold mb-2">Authentication error</p>
+                    <p>There was an issue with the authentication process. Please try again.</p>
+                  </div>
+                )}
+                {searchParams.error === 'OAuthAccountNotLinked' && (
+                  <div>
+                    <p className="font-semibold mb-2">Account linking issue resolved</p>
+                    <p>You can now sign in with either Google or email using the same email address. Please try again.</p>
+                  </div>
+                )}
+                {searchParams.error === 'EmailSignin' && (
+                  <div>
+                    <p className="font-semibold mb-2">Error sending email</p>
+                    <p>There was an issue sending the magic link. Please try again.</p>
+                  </div>
+                )}
+                {searchParams.error === 'CredentialsSignin' && (
+                  <div>
+                    <p className="font-semibold mb-2">Sign in failed</p>
+                    <p>Invalid credentials. Please check your information and try again.</p>
+                  </div>
+                )}
+                {searchParams.error === 'SessionRequired' && (
+                  <div>
+                    <p className="font-semibold mb-2">Please sign in to continue</p>
+                    <p>You need to sign in to access this page.</p>
+                  </div>
+                )}
+                {!searchParams.error.match(/OAuth|Email|Credentials|Session/) && (
+                  <div>
+                    <p className="font-semibold mb-2">Authentication error occurred</p>
+                    <p>An unexpected error occurred. Please try again or contact support if the issue persists.</p>
+                  </div>
+                )}
               </div>
             )}
 
