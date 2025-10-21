@@ -5,11 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { HeroCTA } from '@/components/home/hero-cta';
 import MapClient from '@/components/map/map-client';
+import { prisma } from '@/lib/prisma';
+
+async function getStats() {
+  const [observationCount, speciesCount, userCount] = await Promise.all([
+    prisma.observation.count(),
+    prisma.species.count(),
+    prisma.user.count(),
+  ]);
+  return { observationCount, speciesCount, userCount };
+}
 
 export default async function HomePage() {
-  // Temporary: Use static data to isolate the issue
+  // Test with just stats query first
+  const stats = await getStats();
   const observations: any[] = [];
-  const stats = { observationCount: 0, speciesCount: 0, userCount: 0 };
 
   const mapObservations = observations.map((obs) => ({
     id: obs.id,
