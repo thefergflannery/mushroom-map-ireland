@@ -3,49 +3,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { prisma } from '@/lib/prisma';
-import MapClient from '@/components/map/map-client';
 import { HeroCTA } from '@/components/home/hero-cta';
 
-async function getRecentObservations() {
-  const observations = await prisma.observation.findMany({
-    take: 100,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      user: { select: { handle: true } },
-      identifications: {
-        where: { isConsensus: true },
-        include: {
-          species: {
-            select: {
-              latinName: true,
-              commonEn: true,
-              sensitive: true,
-            },
-          },
-        },
-        take: 1,
-      },
-    },
-  });
-  return observations;
-}
-
-async function getStats() {
-  const [observationCount, speciesCount, userCount] = await Promise.all([
-    prisma.observation.count(),
-    prisma.species.count(),
-    prisma.user.count(),
-  ]);
-  return { observationCount, speciesCount, userCount };
-}
-
 export default async function HomePage() {
-  
-  const [observations, stats] = await Promise.all([
-    getRecentObservations(),
-    getStats(),
-  ]);
+  // Temporary: Use static data to isolate the issue
+  const observations: any[] = [];
+  const stats = { observationCount: 0, speciesCount: 0, userCount: 0 };
 
   const mapObservations = observations.map((obs) => ({
     id: obs.id,
@@ -270,10 +233,10 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* Species Grid */}
-          <Suspense fallback={<div className="text-center py-12"><p className="text-slate-500">Loading species...</p></div>}>
-            <SpeciesHighlights />
-          </Suspense>
+          {/* Species Grid - Temporarily disabled for debugging */}
+          <div className="text-center py-12">
+            <p className="text-slate-500">Species grid temporarily disabled for debugging</p>
+          </div>
 
           <div className="text-center mt-12 md:hidden">
             <Link href="/species">
@@ -485,66 +448,3 @@ export default async function HomePage() {
   );
 }
 
-async function SpeciesHighlights() {
-  const topSpecies = await prisma.species.findMany({
-    take: 6,
-    orderBy: { latinName: 'asc' },
-    include: {
-      _count: {
-        select: {
-          identifications: {
-            where: { isConsensus: true },
-          },
-        },
-      },
-    },
-  });
-
-  const edibilityColors: Record<string, string> = {
-    CHOICE: 'bg-forest-700 text-white',
-    EDIBLE: 'bg-forest-600 text-white',
-    CAUTION: 'bg-amber-500 text-white',
-    TOXIC: 'bg-orange-600 text-white',
-    DEADLY: 'bg-red-700 text-white',
-    UNKNOWN: 'bg-slate-500 text-white',
-  };
-
-  return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {topSpecies.map((species) => (
-        <Link href={`/species/${species.slug}`} key={species.id}>
-          <div className="card-modern group h-full">
-            {/* Image placeholder - can add species photos later */}
-            <div className="relative h-64 bg-gradient-to-br from-forest-700 to-forest-900 overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-9xl opacity-10">🍄</span>
-              </div>
-              <div className="absolute top-4 right-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${edibilityColors[species.edibility]}`}>
-                  {species.edibility}
-                </span>
-              </div>
-            </div>
-            
-            <div className="p-6">
-              <h3 className="text-2xl font-bold text-forest-900 mb-2 italic group-hover:text-forest-700 transition-colors">
-                {species.latinName}
-              </h3>
-              <p className="text-lg text-slate-700 mb-1">{species.commonEn}</p>
-              {species.commonGa && (
-                <p className="text-sm text-slate-500 mb-4">{species.commonGa}</p>
-              )}
-              
-              {species._count.identifications > 0 && (
-                <div className="inline-flex items-center gap-2 text-sm text-forest-700">
-                  <span className="font-semibold">{species._count.identifications}</span>
-                  <span className="text-slate-600">observations</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </Link>
-      ))}
-    </div>
-  );
-}
