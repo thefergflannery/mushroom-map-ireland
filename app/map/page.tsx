@@ -1,54 +1,64 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { UserMenu } from '@/components/auth/user-menu';
 import MapClient from '@/components/map/map-client';
 import { formatRelativeTime } from '@/lib/utils';
 
-async function getRecentObservations() {
-  const observations = await prisma.observation.findMany({
-    where: {
-      status: { in: ['CONSENSUS', 'HAS_CANDIDATES'] }, // Show both consensus and candidates
-    },
-    take: 100,
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      lat: true,
-      lng: true,
-      photoUrl: true,
-      status: true,
-      createdAt: true,
-      user: {
-        select: {
-          handle: true,
-        },
-      },
-      identifications: {
-        select: {
-          species: {
-            select: {
-              latinName: true,
-              commonEn: true,
-              sensitive: true,
-            },
-          },
-        },
-        take: 1,
-      },
-    },
-  });
-
-  return observations;
+interface Observation {
+  id: string;
+  lat: number;
+  lng: number;
+  photoUrl: string;
+  status: string;
+  createdAt: string;
+  user: {
+    handle: string;
+  };
+  identifications: Array<{
+    species: {
+      latinName: string;
+      commonEn: string;
+      sensitive: boolean;
+    };
+  }>;
 }
 
-export default async function MapPage() {
-  const [observations, session] = await Promise.all([
-    getRecentObservations(),
-    auth(),
-  ]);
+export default function MapPage() {
+  const [observations, setObservations] = useState<Observation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+
+  const fetchObservations = async () => {
+    try {
+      const response = await fetch('/api/observations?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch observations');
+      
+      const data = await response.json();
+      const filteredObservations = data.filter((obs: any) => 
+        ['CONSENSUS', 'HAS_CANDIDATES'].includes(obs.status)
+      );
+      
+      setObservations(filteredObservations);
+      setLastRefresh(new Date());
+    } catch (error) {
+      console.error('Error fetching observations:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchObservations();
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchObservations, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Transform for map component
   const mapObservations = observations.map((obs) => ({
@@ -77,68 +87,91 @@ export default async function MapPage() {
 
           {/* Sidebar */}
           <div className="w-80 bg-white border-l overflow-y-auto hidden lg:block">
-            <div className="p-4 border-b bg-forest-50">
-              <h2 className="font-bold text-lg text-forest-900 mb-1">Recent Observations</h2>
-              <p className="text-sm text-gray-600">{observations.length} observations mapped</p>
-            </div>
-
-            <div className="divide-y">
-              {observations.slice(0, 20).map((obs) => (
-                <Link
-                  key={obs.id}
-                  href={`/observation/${obs.id}`}
-                  className="block p-4 hover:bg-forest-50 transition-colors"
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-forest-900">Recent Observations</h2>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={fetchObservations}
+                  disabled={isLoading}
                 >
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0">
-                      <img
-                        src={obs.photoUrl}
-                        alt="Observation"
-                        className="w-16 h-16 rounded-lg object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      {obs.identifications[0]?.species ? (
-                        <>
-                          <p className="font-medium text-sm italic text-gray-900 truncate">
-                            {obs.identifications[0].species.latinName}
-                          </p>
-                          <p className="text-xs text-gray-600 truncate">
-                            {obs.identifications[0].species.commonEn}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-sm text-gray-600">Needs identification</p>
-                      )}
-                      <p className="text-xs text-gray-500 mt-1">
-                        by @{obs.user.handle} • {formatRelativeTime(obs.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {observations.length === 0 && (
-              <div className="p-8 text-center text-gray-500">
-                <p className="text-4xl mb-3">🍄</p>
-                <p className="text-sm">No observations yet</p>
-                <p className="text-xs mt-1">Be the first to map a mushroom!</p>
+                  {isLoading ? 'Refreshing...' : 'Refresh'}
+                </Button>
               </div>
-            )}
+              
+              <p className="text-sm text-slate-600 mb-4">
+                {observations.length} observations mapped
+              </p>
+              
+              {lastRefresh && (
+                <p className="text-xs text-slate-500 mb-4">
+                  Last updated: {formatRelativeTime(lastRefresh)}
+                </p>
+              )}
+
+              <div className="space-y-4">
+                {observations.slice(0, 10).map((obs) => (
+                  <Link key={obs.id} href={`/observation/${obs.id}`}>
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex gap-3">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
+                            <img
+                              src={obs.photoUrl}
+                              alt="Observation"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-sm font-medium text-slate-900">
+                                {obs.identifications[0]?.species?.latinName || 'Needs identification'}
+                              </span>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                obs.status === 'CONSENSUS' ? 'bg-green-100 text-green-700' :
+                                obs.status === 'HAS_CANDIDATES' ? 'bg-blue-100 text-blue-700' :
+                                'bg-amber-100 text-amber-700'
+                              }`}>
+                                {obs.status.replace('_', ' ')}
+                              </span>
+                            </div>
+                            <p className="text-sm text-slate-600">
+                              by @{obs.user.handle} • {formatRelativeTime(new Date(obs.createdAt))}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Recent Button */}
-        <div className="lg:hidden absolute bottom-4 right-4">
-          <Link href="#recent">
-            <Button className="bg-white shadow-lg border border-gray-200">
-              Recent Observations
-            </Button>
-          </Link>
+        {/* Legend */}
+        <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+          <h3 className="font-semibold text-slate-900 mb-2">Legend</h3>
+          <div className="space-y-1 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+              <span>Needs ID</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <span>Has candidates</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <span>Consensus</span>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">
+            🔒 Privacy-first: Grid precision only
+          </p>
         </div>
       </section>
     </div>
   );
 }
-

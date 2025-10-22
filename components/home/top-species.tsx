@@ -8,9 +8,6 @@ export async function TopSpecies() {
   const topSpecies = await prisma.species.findMany({
     take: 8,
     include: {
-      identifications: {
-        where: { isConsensus: true },
-      },
       _count: {
         select: {
           identifications: {
