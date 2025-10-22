@@ -26,7 +26,7 @@ const irishSpecies = [
     habitat: 'Mixed woodland, especially under oak, beech, and conifers',
     keyTraits: 'Large brown cap; white then yellowish pores; thick white stem with fine network; excellent edible',
     sensitive: false,
-    heroImageUrl: 'https://images.unsplash.com/photo-1600106953190-a0e4cb9e2a76?w=800&q=80',
+    heroImageUrl: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80',
   },
   {
     latinName: 'Amanita muscaria',
@@ -63,7 +63,7 @@ const irishSpecies = [
     habitat: 'Mixed woodland, especially oak and beech',
     keyTraits: 'Golden-yellow; funnel-shaped; false gills (ridges); fruity apricot smell; choice edible',
     sensitive: false,
-    heroImageUrl: 'https://images.unsplash.com/photo-1580473395973-c362a1e2b797?w=800&q=80',
+    heroImageUrl: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80',
   },
   {
     latinName: 'Coprinus comatus',
