@@ -27,6 +27,10 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
     
     if (map.current) return; // already initialized
 
+    // Debug container dimensions
+    const rect = mapContainer.current.getBoundingClientRect();
+    console.log('Map container dimensions:', rect.width, 'x', rect.height);
+
     try {
       console.log('Creating MapLibre instance...');
       
@@ -132,8 +136,8 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
   }
 
   return (
-    <div className="w-full h-full relative min-h-[400px]">
-      <div ref={mapContainer} className="absolute inset-0" />
+    <div className="w-full h-full relative min-h-[400px] bg-gray-200">
+      <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
       
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">

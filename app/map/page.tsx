@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,18 +72,7 @@ export default async function MapPage() {
         <div className="absolute inset-0 flex">
           {/* Map */}
           <div className="flex-1">
-            <Suspense
-              fallback={
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading map...</p>
-                  </div>
-                </div>
-              }
-            >
-              <MapClient observations={mapObservations} />
-            </Suspense>
+            <MapClient observations={mapObservations} />
           </div>
 
           {/* Sidebar */}
