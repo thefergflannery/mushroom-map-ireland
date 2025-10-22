@@ -17,6 +17,7 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const [error, setError] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!mapContainer.current) {
@@ -31,8 +32,25 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
       
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        // Stable Carto Positron GL style (privacy-safe, fast)
-        style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+        // Use OpenStreetMap style as fallback
+        style: {
+          version: 8,
+          sources: {
+            'osm': {
+              type: 'raster',
+              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tileSize: 256,
+              attribution: '© OpenStreetMap contributors'
+            }
+          },
+          layers: [
+            {
+              id: 'osm',
+              type: 'raster',
+              source: 'osm'
+            }
+          ]
+        },
         center: [-8.2439, 53.4129],
         zoom: 6.5,
       });
@@ -41,6 +59,7 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
 
       map.current.on('load', () => {
         console.log('Map loaded successfully');
+        setIsLoading(false);
         // Ensure correct sizing when the map first loads
         map.current?.resize();
         
@@ -73,7 +92,7 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
 
     } catch (err) {
       console.error('Error initializing map:', err);
-      setError('Failed to initialize map');
+      setError(`Map initialization failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
 
     return () => {
@@ -115,6 +134,15 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
   return (
     <div className="w-full h-full relative min-h-[400px]">
       <div ref={mapContainer} className="absolute inset-0" />
+      
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading map...</p>
+          </div>
+        </div>
+      )}
       
       {observations.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/90 pointer-events-none">
