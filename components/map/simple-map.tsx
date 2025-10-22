@@ -23,6 +23,20 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
+  // Helper function to get status color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'NEEDS_ID':
+        return '#f59e0b'; // amber
+      case 'HAS_CANDIDATES':
+        return '#3b82f6'; // blue
+      case 'CONSENSUS':
+        return '#10b981'; // green
+      default:
+        return '#6b7280'; // gray
+    }
+  };
+
   useEffect(() => {
     if (!mapContainer.current) {
       console.error('Map container not found');
