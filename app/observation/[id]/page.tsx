@@ -12,6 +12,7 @@ import { VoteButtons } from '@/components/observation/vote-buttons';
 import { IdentificationForm } from '@/components/observation/identification-form';
 import { CommentForm } from '@/components/observation/comment-form';
 import { ShareButton } from '@/components/observation/share-button';
+import SimpleMap from '@/components/map/simple-map';
 
 interface PageProps {
   params: { id: string };
@@ -390,15 +391,15 @@ export default async function ObservationPage({ params }: PageProps) {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="h-48 rounded-lg overflow-hidden bg-slate-100 relative">
-                        {/* Simple static map placeholder */}
-                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-forest-700 to-forest-900 text-white">
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">📍</div>
-                            <p className="font-mono text-sm">
-                              {displayCoords.lat.toFixed(4)}, {displayCoords.lng.toFixed(4)}
-                            </p>
-                          </div>
-                        </div>
+                        <SimpleMap 
+                          observations={[{
+                            id: observation.id,
+                            lat: displayCoords.lat,
+                            lng: displayCoords.lng,
+                            status: observation.status,
+                            photoUrl: observation.photoUrl
+                          }]} 
+                        />
                       </div>
                       <div>
                         <p className="text-sm text-slate-500 mb-1">Privacy Level</p>

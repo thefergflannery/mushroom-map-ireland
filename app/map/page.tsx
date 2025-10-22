@@ -68,48 +68,8 @@ export default async function MapPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="text-3xl">🍄</span>
-              <span className="text-xl font-bold text-forest-700">Beacáin</span>
-            </Link>
-            
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/map" className="text-sm font-medium text-forest-700 border-b-2 border-forest-700">
-                Map
-              </Link>
-              <Link href="/species" className="text-sm font-medium text-gray-700 hover:text-forest-700">
-                Species Guide
-              </Link>
-              <Link href="/glossary" className="text-sm font-medium text-gray-700 hover:text-forest-700">
-                Glossary
-              </Link>
-              {session?.user ? (
-                <>
-                  <Link href="/observe">
-                    <Button className="bg-forest-600 hover:bg-forest-700">
-                      Add a Find
-                    </Button>
-                  </Link>
-                  <UserMenu user={session.user} />
-                </>
-              ) : (
-                <Link href="/auth/signin">
-                  <Button className="bg-forest-600 hover:bg-forest-700">
-                    Sign In
-                  </Button>
-                </Link>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
-
       {/* Map Section */}
-      <section className="relative h-[calc(100vh-4rem)]">
+      <section className="relative h-screen">
         <div className="absolute inset-0 flex">
           {/* Map */}
           <div className="flex-1">
