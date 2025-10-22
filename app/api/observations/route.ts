@@ -175,6 +175,7 @@ export async function POST(request: NextRequest) {
         privacyLevel: data.privacyLevel,
         accuracyM: data.accuracyM,
         status: 'CONSENSUS', // Auto-accepted, moderators can reject if inappropriate
+        observedAt: data.observedAt ? new Date(data.observedAt) : null,
       },
       include: {
         user: {

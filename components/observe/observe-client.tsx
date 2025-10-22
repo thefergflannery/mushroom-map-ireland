@@ -23,6 +23,7 @@ export function ObserveClient({ user }: ObserveClientProps) {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [privacyLevel, setPrivacyLevel] = useState<'EXACT' | 'GRID_1KM' | 'GRID_10KM'>('GRID_1KM');
   const [notes, setNotes] = useState('');
+  const [observedAt, setObservedAt] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [exifDetected, setExifDetected] = useState(false);
@@ -75,6 +76,7 @@ export function ObserveClient({ user }: ObserveClientProps) {
           lng: location.lng,
           privacyLevel,
           notes: notes.trim() || undefined,
+          observedAt: observedAt ? new Date(observedAt).toISOString() : undefined,
         }),
       });
 
@@ -249,6 +251,23 @@ export function ObserveClient({ user }: ObserveClientProps) {
                     <div>
                       <h3 className="text-lg font-semibold mb-3">AI Suggestions</h3>
                       <AISuggestions photoUrl={photoUrl} />
+                    </div>
+
+                    {/* Date Observed */}
+                    <div>
+                      <label htmlFor="observedAt" className="block text-sm font-medium mb-2">
+                        Date Observed
+                      </label>
+                      <input
+                        type="date"
+                        id="observedAt"
+                        value={observedAt}
+                        onChange={(e) => setObservedAt(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-forest-700 focus:border-transparent"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">
+                        When did you find this mushroom? (Optional - defaults to today)
+                      </p>
                     </div>
 
                     {/* Notes */}

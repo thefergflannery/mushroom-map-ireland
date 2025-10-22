@@ -421,7 +421,9 @@ export default async function ObservationPage({ params }: PageProps) {
                     <CardContent className="space-y-4 text-sm">
                       <div>
                         <p className="text-slate-500 mb-1">Date Observed</p>
-                        <p className="font-semibold text-slate-900">{formatDate(observation.createdAt)}</p>
+                        <p className="font-semibold text-slate-900">
+                          {observation.observedAt ? formatDate(observation.observedAt) : 'Not specified'}
+                        </p>
                       </div>
                       <div>
                         <p className="text-slate-500 mb-1">Uploaded</p>

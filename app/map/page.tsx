@@ -38,8 +38,8 @@ export default function MapPage() {
       const response = await fetch('/api/observations?limit=100');
       if (!response.ok) throw new Error('Failed to fetch observations');
       
-      const data = await response.json();
-      const filteredObservations = data.filter((obs: any) => 
+      const result = await response.json();
+      const filteredObservations = result.data.filter((obs: any) => 
         ['CONSENSUS', 'HAS_CANDIDATES'].includes(obs.status)
       );
       

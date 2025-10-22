@@ -160,11 +160,13 @@ export function SpeciesList({ species }: SpeciesListProps) {
                 <div className="h-64 overflow-hidden rounded-t-2xl relative bg-slate-100">
                   {sp.heroImageUrl ? (
                     <Image
+                      key={sp.heroImageUrl} // Force re-render when URL changes
                       src={sp.heroImageUrl}
                       alt={`${sp.commonEn} mushroom`}
                       fill
                       className="object-cover img-hover-zoom"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      unoptimized={false}
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-forest-700 to-forest-900 flex items-center justify-center" aria-hidden="true">

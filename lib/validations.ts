@@ -13,6 +13,7 @@ export const createObservationSchema = z.object({
   notes: z.string().max(2000).optional(),
   privacyLevel: z.enum(['EXACT', 'GRID_1KM', 'GRID_10KM']).default('GRID_1KM'),
   accuracyM: z.number().positive().optional(),
+  observedAt: z.string().datetime().optional(),
 });
 
 export const updateObservationSchema = z.object({

@@ -137,6 +137,7 @@ model Observation {
   photoUrl        String
   photoKey        String?
   notes           String?
+  observedAt      DateTime?        // When the mushroom was actually found/observed
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   privacyLevel    PrivacyLevel     @default(GRID_1KM)
@@ -150,6 +151,7 @@ model Observation {
   @@index([status])
   @@index([grid1km])
   @@index([createdAt])
+  @@index([observedAt])
 }
 
 model Identification {

@@ -42,8 +42,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
     }
 
-    // Upload to Vercel Blob
-    const blob = await put(`species/${speciesSlug}/${file.name}`, file, {
+    // Upload to Vercel Blob with timestamp to prevent caching issues
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const filename = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+    const blob = await put(`species/${speciesSlug}/${filename}`, file, {
       access: 'public',
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
