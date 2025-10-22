@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SafetyBanner } from '@/components/common/safety-banner';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faRobot, faUsers, faChartLine } from '@fortawesome/free-solid-svg-icons';
 
 export const metadata: Metadata = {
   title: 'About - Mushroom Map Ireland',
@@ -71,7 +73,7 @@ export default function AboutPage() {
               <Card className="card-modern">
                 <CardHeader>
                   <div className="w-16 h-16 rounded-full bg-forest-100 flex items-center justify-center mb-4">
-                    <span className="text-3xl">📸</span>
+                    <FontAwesomeIcon icon={faCamera} className="text-3xl text-forest-700" />
                   </div>
                   <CardTitle className="text-2xl">Observe & Upload</CardTitle>
                 </CardHeader>
@@ -86,7 +88,7 @@ export default function AboutPage() {
               <Card className="card-modern">
                 <CardHeader>
                   <div className="w-16 h-16 rounded-full bg-forest-100 flex items-center justify-center mb-4">
-                    <span className="text-3xl">🤖</span>
+                    <FontAwesomeIcon icon={faRobot} className="text-3xl text-forest-700" />
                   </div>
                   <CardTitle className="text-2xl">AI Assistance</CardTitle>
                 </CardHeader>
@@ -101,7 +103,7 @@ export default function AboutPage() {
               <Card className="card-modern">
                 <CardHeader>
                   <div className="w-16 h-16 rounded-full bg-forest-100 flex items-center justify-center mb-4">
-                    <span className="text-3xl">👥</span>
+                    <FontAwesomeIcon icon={faUsers} className="text-3xl text-forest-700" />
                   </div>
                   <CardTitle className="text-2xl">Community Consensus</CardTitle>
                 </CardHeader>
@@ -116,7 +118,7 @@ export default function AboutPage() {
               <Card className="card-modern">
                 <CardHeader>
                   <div className="w-16 h-16 rounded-full bg-forest-100 flex items-center justify-center mb-4">
-                    <span className="text-3xl">📊</span>
+                    <FontAwesomeIcon icon={faChartLine} className="text-3xl text-forest-700" />
                   </div>
                   <CardTitle className="text-2xl">Build Knowledge</CardTitle>
                 </CardHeader>

@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { HeroCTA } from '@/components/home/hero-cta';
 import MapClient from '@/components/map/map-client';
 import { prisma } from '@/lib/prisma';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faRobot, faMicroscope, faMapMarkerAlt, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 async function getStats() {
   const [observationCount, speciesCount, userCount] = await Promise.all([
@@ -138,7 +140,7 @@ export default async function HomePage() {
               <div className="relative h-64 rounded-2xl overflow-hidden mb-6">
                 <div className="absolute inset-0 bg-gradient-to-br from-forest-700 to-forest-900"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-8xl opacity-20">📸</span>
+                  <FontAwesomeIcon icon={faCamera} className="text-8xl text-white opacity-20" />
                 </div>
                 <div className="relative h-full flex flex-col justify-end p-6">
                   <h3 className="text-2xl font-bold text-white mb-2">Find & Document</h3>
@@ -154,7 +156,7 @@ export default async function HomePage() {
               <div className="relative h-64 rounded-2xl overflow-hidden mb-6">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-earth-800"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-8xl opacity-20">🤖</span>
+                  <FontAwesomeIcon icon={faRobot} className="text-8xl text-white opacity-20" />
                 </div>
                 <div className="relative h-full flex flex-col justify-end p-6">
                   <h3 className="text-2xl font-bold text-white mb-2">AI-Powered ID</h3>
@@ -170,7 +172,7 @@ export default async function HomePage() {
               <div className="relative h-64 rounded-2xl overflow-hidden mb-6">
                 <div className="absolute inset-0 bg-gradient-to-br from-sky-600 to-slate-800"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-8xl opacity-20">🔬</span>
+                  <FontAwesomeIcon icon={faMicroscope} className="text-8xl text-white opacity-20" />
                 </div>
                 <div className="relative h-full flex flex-col justify-end p-6">
                   <h3 className="text-2xl font-bold text-white mb-2">Research Data</h3>
@@ -361,7 +363,7 @@ export default async function HomePage() {
         <div className="container-modern">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm mb-6">
-              <span className="text-5xl">⚠️</span>
+              <FontAwesomeIcon icon={faExclamationTriangle} className="text-5xl text-white" />
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
               Never Consume Based on Online ID

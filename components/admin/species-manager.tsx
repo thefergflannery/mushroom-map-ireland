@@ -163,6 +163,46 @@ export function SpeciesManager({ species: initialSpecies }: SpeciesManagerProps)
                   rows={3}
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Hero Image URL</label>
+                <input
+                  type="url"
+                  value={editForm.heroImageUrl || ''}
+                  onChange={(e) => setEditForm({...editForm, heroImageUrl: e.target.value})}
+                  placeholder="https://example.com/image.jpg or /hero1.jpg"
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  Upload images to /public folder or use external URLs
+                </p>
+                {editForm.heroImageUrl && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium mb-1">Preview:</p>
+                    <div className="relative h-32 w-full rounded-lg overflow-hidden bg-slate-100">
+                      <img
+                        src={editForm.heroImageUrl}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999"%3EInvalid URL%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="sensitive"
+                  checked={editForm.sensitive || false}
+                  onChange={(e) => setEditForm({...editForm, sensitive: e.target.checked})}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="sensitive" className="text-sm font-medium">
+                  Mark as sensitive/rare species (extra location privacy)
+                </label>
+              </div>
               <div className="flex gap-2 pt-4">
                 <Button onClick={saveEdit} className="bg-forest-700 hover:bg-forest-800 flex-1">
                   Save Changes

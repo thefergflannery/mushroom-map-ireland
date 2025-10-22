@@ -10,9 +10,18 @@ import { formatRelativeTime } from '@/lib/utils';
 
 async function getRecentObservations() {
   const observations = await prisma.observation.findMany({
+    where: {
+      status: 'CONSENSUS', // Only show approved observations
+    },
     take: 100,
     orderBy: { createdAt: 'desc' },
-    include: {
+    select: {
+      id: true,
+      lat: true,
+      lng: true,
+      photoUrl: true,
+      status: true,
+      createdAt: true,
       user: {
         select: {
           handle: true,
@@ -20,7 +29,7 @@ async function getRecentObservations() {
       },
       identifications: {
         where: { isConsensus: true },
-        include: {
+        select: {
           species: {
             select: {
               latinName: true,
