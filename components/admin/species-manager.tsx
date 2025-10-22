@@ -15,6 +15,7 @@ export function SpeciesManager({ species: initialSpecies }: SpeciesManagerProps)
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const filteredSpecies = species.filter(s =>
     s.latinName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -40,6 +41,36 @@ export function SpeciesManager({ species: initialSpecies }: SpeciesManagerProps)
     setEditForm(null);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0] || !editForm) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', e.target.files[0]);
+      formData.append('slug', editForm.slug);
+
+      const response = await fetch('/api/species/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload image');
+
+      const { url } = await response.json();
+      setEditForm({ ...editForm, heroImageUrl: url });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setEditForm({ ...editForm, heroImageUrl: null });
+  };
+
   const saveEdit = async () => {
     if (!editingId || !editForm) return;
 
@@ -56,6 +87,7 @@ export function SpeciesManager({ species: initialSpecies }: SpeciesManagerProps)
       setSpecies(species.map(s => s.id === editingId ? data : s));
       setEditingId(null);
       setEditForm(null);
+      alert('Species updated successfully!');
     } catch (error) {
       console.error('Error updating species:', error);
       alert('Failed to update species');
@@ -164,30 +196,84 @@ export function SpeciesManager({ species: initialSpecies }: SpeciesManagerProps)
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Hero Image URL</label>
-                <input
-                  type="url"
-                  value={editForm.heroImageUrl || ''}
-                  onChange={(e) => setEditForm({...editForm, heroImageUrl: e.target.value})}
-                  placeholder="https://example.com/image.jpg or /hero1.jpg"
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-                <p className="text-xs text-slate-500 mt-1">
-                  Upload images to /public folder or use external URLs
-                </p>
-                {editForm.heroImageUrl && (
-                  <div className="mt-2">
-                    <p className="text-xs font-medium mb-1">Preview:</p>
-                    <div className="relative h-32 w-full rounded-lg overflow-hidden bg-slate-100">
+                <label className="block text-sm font-medium mb-2">Species Image</label>
+                
+                {editForm.heroImageUrl ? (
+                  <div className="space-y-2">
+                    <div className="relative h-48 w-full rounded-lg overflow-hidden bg-slate-100">
                       <img
                         src={editForm.heroImageUrl}
-                        alt="Preview"
+                        alt="Species preview"
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999"%3EInvalid URL%3C/text%3E%3C/svg%3E';
-                        }}
                       />
                     </div>
+                    <div className="flex gap-2">
+                      <label className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={isUploading}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
+                          }}
+                          disabled={isUploading}
+                        >
+                          {isUploading ? 'Uploading...' : 'Replace Image'}
+                        </Button>
+                      </label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={removeImage}
+                        disabled={isUploading}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
+                      <p className="text-slate-600 mb-3">No image uploaded</p>
+                      <label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={isUploading}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
+                          }}
+                          disabled={isUploading}
+                        >
+                          {isUploading ? 'Uploading...' : 'Upload Image'}
+                        </Button>
+                      </label>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      Or enter a URL manually:
+                    </p>
+                    <input
+                      type="url"
+                      value={editForm.heroImageUrl || ''}
+                      onChange={(e) => setEditForm({...editForm, heroImageUrl: e.target.value})}
+                      placeholder="https://example.com/image.jpg"
+                      className="w-full px-4 py-2 border rounded-lg text-sm"
+                    />
                   </div>
                 )}
               </div>

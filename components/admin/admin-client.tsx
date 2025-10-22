@@ -10,6 +10,8 @@ import { GlossaryManager } from '@/components/admin/glossary-manager';
 import { SpeciesManager } from '@/components/admin/species-manager';
 import { ModerationQueue } from '@/components/admin/moderation-queue';
 import { UserManager } from '@/components/admin/user-manager';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartLine, faBook, faMushroom, faGavel, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 interface AdminClientProps {
   user: any;
@@ -27,11 +29,11 @@ export function AdminClient({ user, data }: AdminClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
   const tabs = [
-    { id: 'overview' as TabType, label: 'Overview', icon: '📊' },
-    { id: 'glossary' as TabType, label: 'Glossary', icon: '📚' },
-    { id: 'species' as TabType, label: 'Species', icon: '🍄' },
-    { id: 'moderation' as TabType, label: 'Moderation', icon: '⚖️', count: data.pendingObservations.length },
-    { id: 'users' as TabType, label: 'Users', icon: '👥' },
+    { id: 'overview' as TabType, label: 'Overview', icon: faChartLine },
+    { id: 'glossary' as TabType, label: 'Glossary', icon: faBook },
+    { id: 'species' as TabType, label: 'Species', icon: faMushroom },
+    { id: 'moderation' as TabType, label: 'Moderation', icon: faGavel, count: data.pendingObservations.length },
+    { id: 'users' as TabType, label: 'Users', icon: faUsers },
   ];
 
   return (
@@ -67,7 +69,7 @@ export function AdminClient({ user, data }: AdminClientProps) {
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                <span className="text-xl">{tab.icon}</span>
+                <FontAwesomeIcon icon={tab.icon} className="text-lg" />
                 {tab.label}
                 {tab.count && tab.count > 0 && (
                   <Badge className="bg-red-500 text-white ml-2">{tab.count}</Badge>

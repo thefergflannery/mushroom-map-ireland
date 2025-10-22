@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 interface HeroCTAProps {
   observationCount: number;
@@ -17,7 +19,7 @@ export function HeroCTA({ observationCount, speciesCount, userCount }: HeroCTAPr
     return (
       <>
         <div className="btn-primary opacity-50 animate-pulse">
-          <span className="text-2xl">📸</span>
+          <FontAwesomeIcon icon={faSpinner} className="text-xl animate-spin" />
           Loading...
         </div>
         <div className="btn-outline opacity-50 animate-pulse">
@@ -32,7 +34,7 @@ export function HeroCTA({ observationCount, speciesCount, userCount }: HeroCTAPr
       {session?.user ? (
         <>
           <Link href="/observe" className="btn-primary">
-            <span className="text-2xl">📸</span>
+            <FontAwesomeIcon icon={faCamera} className="text-xl" />
             Submit Your Find
           </Link>
           <Link href="/map" className="btn-outline">

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
 
 /**
  * GET /api/species/[slug]
@@ -52,6 +53,57 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
     });
   } catch (error) {
     console.error('Error fetching species:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * PUT /api/species/[slug]
+ * Update species details (admin only)
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userRole = (session.user as any).role;
+    if (userRole !== 'ADMIN' && userRole !== 'MODERATOR') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json();
+
+    // Update species
+    const species = await prisma.species.update({
+      where: { slug: params.slug },
+      data: {
+        latinName: body.latinName,
+        commonEn: body.commonEn,
+        commonGa: body.commonGa || null,
+        edibility: body.edibility,
+        season: body.season || null,
+        habitat: body.habitat || null,
+        keyTraits: body.keyTraits || null,
+        heroImageUrl: body.heroImageUrl || null,
+        sensitive: body.sensitive || false,
+      },
+      include: {
+        _count: {
+          select: {
+            identifications: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ data: species });
+  } catch (error) {
+    console.error('Error updating species:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
