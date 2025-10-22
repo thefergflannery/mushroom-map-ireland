@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
     // Calculate grid coordinates
     const gridCoords = calculateGridCoordinates(data.lat, data.lng, data.privacyLevel);
 
-    // Create observation
+    // Create observation (auto-approved, moderators can review and remove if needed)
     const observation = await prisma.observation.create({
       data: {
         userId: session.user.id,
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
         notes: data.notes,
         privacyLevel: data.privacyLevel,
         accuracyM: data.accuracyM,
-        status: 'NEEDS_ID',
+        status: 'CONSENSUS', // Auto-accepted, moderators can reject if inappropriate
       },
       include: {
         user: {

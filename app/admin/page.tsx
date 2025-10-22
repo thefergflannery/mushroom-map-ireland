@@ -19,13 +19,9 @@ async function getAdminData() {
       },
     }),
     prisma.observation.findMany({
-      where: {
-        status: {
-          in: ['NEEDS_ID', 'HAS_CANDIDATES'],
-        },
-      },
+      // Show all observations, not just pending ones
       orderBy: { createdAt: 'desc' },
-      take: 50,
+      take: 100,
       include: {
         user: {
           select: {

@@ -1,17 +1,22 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatRelativeTime } from '@/lib/utils';
+import { toast } from 'react-hot-toast';
 
 interface ModerationQueueProps {
   observations: any[];
 }
 
-export function ModerationQueue({ observations }: ModerationQueueProps) {
+export function ModerationQueue({ observations: initialObservations }: ModerationQueueProps) {
+  const [observations, setObservations] = useState(initialObservations);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+
   const statusColors = {
     NEEDS_ID: 'bg-red-100 text-red-700 border-red-300',
     HAS_CANDIDATES: 'bg-amber-100 text-amber-700 border-amber-300',
@@ -24,13 +29,59 @@ export function ModerationQueue({ observations }: ModerationQueueProps) {
     CONSENSUS: 'Consensus',
   };
 
+  const handleAcceptObservation = async (observationId: string) => {
+    setIsProcessing(observationId);
+    try {
+      const response = await fetch(`/api/observations/${observationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'CONSENSUS' }),
+      });
+
+      if (!response.ok) throw new Error('Failed to accept observation');
+
+      // Remove from queue
+      setObservations(obs => obs.filter(o => o.id !== observationId));
+      toast.success('Observation accepted');
+    } catch (error) {
+      console.error('Error accepting observation:', error);
+      toast.error('Failed to accept observation');
+    } finally {
+      setIsProcessing(null);
+    }
+  };
+
+  const handleRejectObservation = async (observationId: string) => {
+    if (!confirm('Are you sure you want to reject this observation? This will delete it permanently.')) {
+      return;
+    }
+
+    setIsProcessing(observationId);
+    try {
+      const response = await fetch(`/api/observations/${observationId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to reject observation');
+
+      // Remove from queue
+      setObservations(obs => obs.filter(o => o.id !== observationId));
+      toast.success('Observation rejected and deleted');
+    } catch (error) {
+      console.error('Error rejecting observation:', error);
+      toast.error('Failed to reject observation');
+    } finally {
+      setIsProcessing(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-forest-900">Moderation Queue</h2>
+          <h2 className="text-3xl font-bold text-forest-900">All Observations</h2>
           <p className="text-slate-600 mt-2">
-            {observations.length} observation{observations.length !== 1 ? 's' : ''} pending review
+            {observations.length} observation{observations.length !== 1 ? 's' : ''} • Review and moderate submissions
           </p>
         </div>
       </div>
@@ -101,10 +152,24 @@ export function ModerationQueue({ observations }: ModerationQueueProps) {
                     {/* Actions */}
                     <div className="flex gap-2">
                       <Link href={`/observation/${obs.id}`}>
-                        <Button className="bg-forest-700 hover:bg-forest-800">
-                          Review Observation →
+                        <Button variant="outline" className="border-forest-700 text-forest-700 hover:bg-forest-50">
+                          Review Details →
                         </Button>
                       </Link>
+                      <Button 
+                        onClick={() => handleAcceptObservation(obs.id)}
+                        disabled={isProcessing === obs.id}
+                        className="bg-forest-700 hover:bg-forest-800"
+                      >
+                        {isProcessing === obs.id ? 'Processing...' : '✓ Accept'}
+                      </Button>
+                      <Button 
+                        onClick={() => handleRejectObservation(obs.id)}
+                        disabled={isProcessing === obs.id}
+                        variant="destructive"
+                      >
+                        {isProcessing === obs.id ? 'Processing...' : '✗ Reject'}
+                      </Button>
                     </div>
                   </div>
                 </div>

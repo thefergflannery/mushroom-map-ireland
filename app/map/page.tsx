@@ -49,6 +49,7 @@ export default async function MapPage() {
     lat: obs.lat,
     lng: obs.lng,
     photoUrl: obs.photoUrl,
+    status: obs.status,
     identification: obs.identifications[0]?.species
       ? {
           latinName: obs.identifications[0].species.latinName,

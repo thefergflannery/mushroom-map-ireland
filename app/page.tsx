@@ -16,22 +16,36 @@ async function getStats() {
   return { observationCount, speciesCount, userCount };
 }
 
+async function getObservations() {
+  const observations = await prisma.observation.findMany({
+    where: {
+      status: 'CONSENSUS', // Only show approved observations on homepage
+    },
+    take: 50,
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      lat: true,
+      lng: true,
+      photoUrl: true,
+      status: true,
+    },
+  });
+  return observations;
+}
+
 export default async function HomePage() {
-  // Test with just stats query first
-  const stats = await getStats();
-  const observations: any[] = [];
+  const [stats, observations] = await Promise.all([
+    getStats(),
+    getObservations(),
+  ]);
 
   const mapObservations = observations.map((obs) => ({
     id: obs.id,
     lat: obs.lat,
     lng: obs.lng,
     photoUrl: obs.photoUrl,
-    identification: obs.identifications[0]?.species
-      ? {
-          latinName: obs.identifications[0].species.latinName,
-          commonEn: obs.identifications[0].species.commonEn,
-        }
-      : null,
+    status: obs.status,
   }));
 
   return (
