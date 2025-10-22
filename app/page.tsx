@@ -457,6 +457,7 @@ export default async function HomePage() {
               <ul className="space-y-3 text-sm">
                 <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/accessibility" className="hover:text-white transition-colors">Accessibility Statement</Link></li>
                 <li><span className="text-slate-500">Version 1.1.0</span></li>
               </ul>
             </div>

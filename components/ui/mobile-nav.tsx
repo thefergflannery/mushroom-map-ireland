@@ -70,6 +70,13 @@ export function MobileNav() {
             >
               About
             </Link>
+            <Link
+              href="/accessibility"
+              className="block py-2 text-sm font-medium text-gray-700 hover:text-forest-700"
+              onClick={() => setIsOpen(false)}
+            >
+              Accessibility
+            </Link>
             <Link href="/observe" onClick={() => setIsOpen(false)}>
               <Button className="w-full bg-forest-600 hover:bg-forest-700">
                 Add a Find
