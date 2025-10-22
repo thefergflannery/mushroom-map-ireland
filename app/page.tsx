@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { HeroCTA } from '@/components/home/hero-cta';
+import { TopSpecies } from '@/components/home/top-species';
 import MapClient from '@/components/map/map-client';
 import { prisma } from '@/lib/prisma';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -254,10 +255,15 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* Species Grid - Temporarily disabled for debugging */}
-          <div className="text-center py-12">
-            <p className="text-slate-500">Species grid temporarily disabled for debugging</p>
-          </div>
+          {/* Species Grid */}
+          <Suspense fallback={
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-forest-400 border-t-transparent mx-auto mb-4"></div>
+              <p className="text-slate-500">Loading species...</p>
+            </div>
+          }>
+            <TopSpecies />
+          </Suspense>
 
           <div className="text-center mt-12 md:hidden">
             <Link href="/species">
