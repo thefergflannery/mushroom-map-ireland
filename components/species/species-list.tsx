@@ -43,6 +43,11 @@ export function SpeciesList({ species }: SpeciesListProps) {
   };
 
   const filteredSpecies = useMemo(() => {
+    // Ensure species is always an array
+    if (!Array.isArray(species)) {
+      return [];
+    }
+    
     return species.filter((sp) => {
       // Exclude hidden species
       if (sp.hidden) return false;
@@ -134,7 +139,7 @@ export function SpeciesList({ species }: SpeciesListProps) {
         </div>
         
         <p className="text-sm text-muted-foreground">
-          Showing {filteredSpecies.length} of {species.length} species
+          Showing {filteredSpecies.length} of {Array.isArray(species) ? species.length : 0} species
         </p>
       </div>
 

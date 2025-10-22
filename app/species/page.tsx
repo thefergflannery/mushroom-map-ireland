@@ -33,10 +33,12 @@ export default function SpeciesGuidePage() {
       const response = await fetch('/api/species');
       if (!response.ok) throw new Error('Failed to fetch species');
       
-      const data = await response.json();
-      setSpecies(data);
+      const result = await response.json();
+      // API returns { data: species[] }, so extract the data array
+      setSpecies(result.data || []);
     } catch (error) {
       console.error('Error fetching species:', error);
+      setSpecies([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
