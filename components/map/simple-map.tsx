@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
+import { clusterObservations, getClusteringPrecision, ClusteredObservation } from '@/lib/clustering';
 
 interface SimpleMapProps {
   observations: Array<{
@@ -68,39 +69,70 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
         // Ensure correct sizing when the map first loads
         map.current?.resize();
         
-        // Add markers
+        // Add clustered markers
         if (observations.length > 0) {
-          observations.forEach((obs) => {
+          const currentZoom = map.current.getZoom();
+          const precision = getClusteringPrecision(currentZoom);
+          const clusters = clusterObservations(observations, precision);
+          
+          console.log(`Clustering ${observations.length} observations into ${clusters.length} clusters with precision ${precision}`);
+          
+          clusters.forEach((cluster) => {
             if (!map.current) return;
 
-            // Create marker element
+            // Create cluster marker element
             const markerEl = document.createElement('div');
-            markerEl.className = 'map-marker';
-            markerEl.style.cssText = `
-              width: 40px;
-              height: 40px;
-              border-radius: 50%;
-              border: 3px solid white;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-              cursor: pointer;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              background: ${getStatusColor(obs.status)};
-              transition: transform 0.2s ease;
-            `;
+            markerEl.className = 'map-cluster-marker';
+            
+            if (cluster.count === 1) {
+              // Single observation - show thumbnail
+              const obs = cluster.observations[0];
+              markerEl.style.cssText = `
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: ${getStatusColor(obs.status)};
+                transition: transform 0.2s ease;
+              `;
 
-            // Add thumbnail image
-            const img = document.createElement('img');
-            img.src = obs.photoUrl;
-            img.style.cssText = `
-              width: 34px;
-              height: 34px;
-              border-radius: 50%;
-              object-fit: cover;
-            `;
-            img.alt = 'Observation';
-            markerEl.appendChild(img);
+              // Add thumbnail image
+              const img = document.createElement('img');
+              img.src = obs.photoUrl;
+              img.style.cssText = `
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                object-fit: cover;
+              `;
+              img.alt = 'Observation';
+              markerEl.appendChild(img);
+            } else {
+              // Multiple observations - show count circle
+              const size = Math.min(60, 30 + cluster.count * 2);
+              markerEl.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #10b981;
+                color: white;
+                font-weight: bold;
+                font-size: ${Math.min(16, 12 + cluster.count)}px;
+                transition: transform 0.2s ease;
+              `;
+              markerEl.textContent = cluster.count.toString();
+            }
 
             // Add hover effect
             markerEl.addEventListener('mouseenter', () => {
