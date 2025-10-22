@@ -44,12 +44,13 @@ enum IdMethod {
 
 model User {
   id              String           @id @default(cuid())
-  handle          String           @unique
+  handle          String?          @unique
   email           String           @unique
   role            Role             @default(USER)
   reputation      Int              @default(0)
   image           String?
   emailVerified   DateTime?
+  name            String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   observations    Observation[]
