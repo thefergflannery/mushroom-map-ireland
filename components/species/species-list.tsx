@@ -15,6 +15,7 @@ interface Species {
   slug: string;
   edibility: string;
   sensitive: boolean;
+  hidden: boolean;
   heroImageUrl: string | null;
   season: string | null;
   habitat: string | null;
@@ -43,6 +44,9 @@ export function SpeciesList({ species }: SpeciesListProps) {
 
   const filteredSpecies = useMemo(() => {
     return species.filter((sp) => {
+      // Exclude hidden species
+      if (sp.hidden) return false;
+      
       const matchesSearch =
         search === '' ||
         sp.latinName.toLowerCase().includes(search.toLowerCase()) ||
@@ -68,7 +72,12 @@ export function SpeciesList({ species }: SpeciesListProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full"
+              aria-label="Search species by name, habitat, or features"
+              aria-describedby="search-help"
             />
+            <p id="search-help" className="text-sm text-slate-500 mt-1">
+              Search by Latin name, common name, Irish name, or habitat
+            </p>
           </div>
           <div className="flex gap-2 flex-wrap">
             <button
@@ -146,25 +155,29 @@ export function SpeciesList({ species }: SpeciesListProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSpecies.map((sp) => (
-            <Link href={`/species/${sp.slug}`} key={sp.id}>
-              <Card className="card-modern h-full group">
+            <Link href={`/species/${sp.slug}`} key={sp.id} aria-label={`View details for ${sp.commonEn} (${sp.latinName})`}>
+              <Card className="card-modern h-full group" role="article">
                 <div className="h-64 overflow-hidden rounded-t-2xl relative bg-slate-100">
                   {sp.heroImageUrl ? (
                     <Image
                       src={sp.heroImageUrl}
-                      alt={sp.commonEn}
+                      alt={`${sp.commonEn} mushroom`}
                       fill
                       className="object-cover img-hover-zoom"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-forest-700 to-forest-900 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-gradient-to-br from-forest-700 to-forest-900 flex items-center justify-center" aria-hidden="true">
                       <span className="text-9xl opacity-20">🍄</span>
                     </div>
                   )}
                   
                   {/* Edibility badge overlay */}
                   <div className="absolute top-4 right-4 z-10">
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg ${edibilityColors[sp.edibility].replace('bg-', 'bg-')} text-white`}>
+                    <span 
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg ${edibilityColors[sp.edibility].replace('bg-', 'bg-')} text-white`}
+                      aria-label={`Edibility: ${sp.edibility}`}
+                    >
                       {sp.edibility}
                     </span>
                   </div>

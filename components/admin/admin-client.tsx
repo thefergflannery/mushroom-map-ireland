@@ -11,7 +11,7 @@ import { SpeciesManager } from '@/components/admin/species-manager';
 import { ModerationQueue } from '@/components/admin/moderation-queue';
 import { UserManager } from '@/components/admin/user-manager';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartLine, faBook, faMushroom, faGavel, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faBook, faSeedling, faGavel, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 interface AdminClientProps {
   user: any;
@@ -31,7 +31,7 @@ export function AdminClient({ user, data }: AdminClientProps) {
   const tabs = [
     { id: 'overview' as TabType, label: 'Overview', icon: faChartLine },
     { id: 'glossary' as TabType, label: 'Glossary', icon: faBook },
-    { id: 'species' as TabType, label: 'Species', icon: faMushroom },
+    { id: 'species' as TabType, label: 'Species', icon: faSeedling },
     { id: 'moderation' as TabType, label: 'Moderation', icon: faGavel, count: data.pendingObservations.length },
     { id: 'users' as TabType, label: 'Users', icon: faUsers },
   ];

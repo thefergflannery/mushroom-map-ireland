@@ -114,6 +114,7 @@ model Species {
   keyTraits       String?
   lookalikeIds    String[]         @default([])
   sensitive       Boolean          @default(false)
+  hidden          Boolean          @default(false)
   heroImageUrl    String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -121,6 +122,7 @@ model Species {
 
   @@index([slug])
   @@index([sensitive])
+  @@index([hidden])
 }
 
 model Observation {

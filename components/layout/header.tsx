@@ -10,35 +10,38 @@ export function Header() {
   const { data: session, status } = useSession();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200" role="banner">
       <div className="container-modern">
         <div className="flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="text-4xl transition-transform group-hover:scale-110">🍄</div>
+          <Link href="/" className="flex items-center gap-3 group" aria-label="Mushroom Map Ireland - Home">
+            <div className="text-4xl transition-transform group-hover:scale-110" aria-hidden="true">🍄</div>
             <div className="hidden sm:block">
               <div className="text-xl font-bold text-forest-900">Beacáin</div>
               <div className="text-xs text-slate-600 -mt-0.5">Mushroom Map Ireland</div>
             </div>
           </Link>
           
-          <nav className="hidden lg:flex items-center gap-8">
-            <Link href="/map" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors">
+          <nav className="hidden lg:flex items-center gap-8" role="navigation" aria-label="Main navigation">
+            <Link href="/map" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors focus:outline-none focus:ring-2 focus:ring-forest-500 focus:ring-offset-2 rounded">
               Map
             </Link>
-            <Link href="/species" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors">
+            <Link href="/species" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors focus:outline-none focus:ring-2 focus:ring-forest-500 focus:ring-offset-2 rounded">
               Species
             </Link>
-            <Link href="/glossary" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors">
+            <Link href="/glossary" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors focus:outline-none focus:ring-2 focus:ring-forest-500 focus:ring-offset-2 rounded">
               Glossary
             </Link>
-            <Link href="/about" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors">
+            <Link href="/about" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors focus:outline-none focus:ring-2 focus:ring-forest-500 focus:ring-offset-2 rounded">
               About
+            </Link>
+            <Link href="/accessibility" className="text-sm font-medium text-slate-700 hover:text-forest-700 transition-colors focus:outline-none focus:ring-2 focus:ring-forest-500 focus:ring-offset-2 rounded">
+              Accessibility
             </Link>
             
             {session?.user ? (
               <>
                 <Link href="/observe">
-                  <Button className="bg-forest-700 hover:bg-forest-800 rounded-full">
+                  <Button className="bg-forest-700 hover:bg-forest-800 rounded-full" aria-label="Add new mushroom observation">
                     Add Observation
                   </Button>
                 </Link>
@@ -46,7 +49,7 @@ export function Header() {
               </>
             ) : (
               <Link href="/auth/signin">
-                <Button className="bg-forest-700 hover:bg-forest-800 rounded-full">
+                <Button className="bg-forest-700 hover:bg-forest-800 rounded-full" aria-label="Sign in to your account">
                   Sign In
                 </Button>
               </Link>

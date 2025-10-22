@@ -91,6 +91,7 @@ export async function PUT(
         keyTraits: body.keyTraits || null,
         heroImageUrl: body.heroImageUrl || null,
         sensitive: body.sensitive || false,
+        hidden: body.hidden || false,
       },
       include: {
         _count: {

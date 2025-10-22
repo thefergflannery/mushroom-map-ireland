@@ -94,6 +94,25 @@ export function SpeciesManager({ species: initialSpecies }: SpeciesManagerProps)
     }
   };
 
+  const handleToggleHidden = async (sp: any) => {
+    try {
+      const response = await fetch(`/api/species/${sp.slug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...sp, hidden: !sp.hidden }),
+      });
+
+      if (!response.ok) throw new Error('Failed to toggle species visibility');
+
+      const { data } = await response.json();
+      setSpecies(species.map(s => s.id === sp.id ? data : s));
+      alert(`Species ${sp.hidden ? 'shown' : 'hidden'} successfully!`);
+    } catch (error) {
+      console.error('Error toggling species visibility:', error);
+      alert('Failed to toggle species visibility');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -335,6 +354,14 @@ export function SpeciesManager({ species: initialSpecies }: SpeciesManagerProps)
                   onClick={() => startEdit(sp)}
                 >
                   Edit
+                </Button>
+                <Button 
+                  variant={sp.hidden ? "default" : "destructive"} 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => handleToggleHidden(sp)}
+                >
+                  {sp.hidden ? 'Show' : 'Hide'}
                 </Button>
               </div>
             </CardContent>

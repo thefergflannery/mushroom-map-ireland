@@ -25,7 +25,7 @@ export default async function SpeciesGuidePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section with Photography */}
-      <section className="relative h-[60vh] min-h-[500px] overflow-hidden">
+      <section className="relative h-[60vh] min-h-[500px] overflow-hidden" aria-label="Species guide hero section">
         <div className="absolute inset-0">
           <Image
             src="/hero1.jpg"
@@ -60,20 +60,20 @@ export default async function SpeciesGuidePage() {
       </section>
 
       {/* Main Content */}
-      <section className="section bg-white">
+      <main className="section bg-white" role="main">
         <div className="container-modern">
           <SpeciesList species={species} />
         </div>
-      </section>
+      </main>
 
       {/* Safety Banner */}
-      <section className="section-sm bg-amber-500">
+      <section className="section-sm bg-amber-500" role="alert" aria-labelledby="safety-heading">
         <div className="container-modern">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm mb-6" aria-hidden="true">
               <span className="text-4xl">⚠️</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 id="safety-heading" className="text-3xl md:text-4xl font-bold text-white mb-4">
               For Identification Only
             </h2>
             <p className="text-lg md:text-xl text-white/95 leading-relaxed max-w-2xl mx-auto">

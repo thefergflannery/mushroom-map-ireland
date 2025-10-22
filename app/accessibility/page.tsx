@@ -1,306 +1,147 @@
-import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
-export const metadata: Metadata = {
-  title: 'Accessibility Statement - Mushroom Map Ireland',
-  description: 'Our commitment to digital accessibility and WCAG 2.2 AA compliance',
-};
-
-export default function AccessibilityPage() {
+export default function AccessibilityStatementPage() {
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Hero Section */}
-      <section className="relative h-[40vh] min-h-[300px] overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0">
-          <Image
-            src="/hero1.jpg"
-            alt="Accessible nature photography showing diverse users exploring mushrooms"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-forest-900/85 via-forest-800/75 to-earth-900/70"></div>
-        </div>
-        <div className="relative container-modern text-center">
-          <h1 className="heading-display text-white mb-4">Accessibility Statement</h1>
-          <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-            Committed to making mushroom identification accessible to everyone
-          </p>
+      {/* Header */}
+      <section className="section bg-white">
+        <div className="container-modern">
+          <Link href="/" className="inline-block mb-6">
+            <Button variant="ghost" className="text-forest-700 hover:bg-forest-50 rounded-full">
+              <span className="mr-2">←</span> Back to Home
+            </Button>
+          </Link>
+          
+          <h1 className="heading-display text-forest-900 mb-6">
+            Accessibility Statement
+          </h1>
+          
+          <div className="prose prose-lg max-w-4xl">
+            <p className="text-xl text-slate-600 mb-8">
+              Mushroom Map Ireland is committed to ensuring digital accessibility for all users, 
+              including those with disabilities. We strive to provide an inclusive experience 
+              that meets or exceeds WCAG 2.2 AA standards.
+            </p>
+          </div>
         </div>
       </section>
 
-      <main className="container-modern py-16">
-        {/* Introduction */}
-        <section className="mb-16">
-          <h2 className="heading-section text-forest-900 mb-6">Our Commitment</h2>
-          <p className="lead text-slate-700 mb-6">
-            Mushroom Map Ireland is committed to ensuring digital accessibility for people with disabilities. 
-            We are continually improving the user experience for everyone and applying the relevant accessibility standards.
-          </p>
-          <p className="text-lg text-slate-600">
-            This website aims to conform to the Web Content Accessibility Guidelines (WCAG) 2.2 at the AA level, 
-            which explains how to make web content more accessible for people with disabilities and user-friendly for everyone.
-          </p>
-        </section>
+      {/* Main Content */}
+      <main className="section bg-white">
+        <div className="container-modern">
+          <div className="prose prose-lg max-w-4xl">
+            
+            <h2 className="text-3xl font-bold text-forest-900 mb-4">Our Commitment</h2>
+            <p className="text-slate-600 mb-6">
+              We are committed to providing a website that is accessible to all users, regardless of 
+              their abilities or the technology they use. This includes:
+            </p>
+            
+            <ul className="list-disc pl-6 mb-6 text-slate-600">
+              <li>Screen reader compatibility</li>
+              <li>Keyboard navigation support</li>
+              <li>High contrast and readable text</li>
+              <li>Alternative text for images</li>
+              <li>Semantic HTML structure</li>
+              <li>Clear focus indicators</li>
+            </ul>
 
-        {/* Standards Compliance */}
-        <section className="mb-16">
-          <h2 className="heading-section text-forest-900 mb-6">Standards Compliance</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-2xl text-forest-800 flex items-center gap-3">
-                  <span className="text-3xl">♿</span>
-                  WCAG 2.2 AA
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 mb-4">
-                  We strive to meet the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA standards. 
-                  These guidelines help make web content more accessible to people with disabilities.
-                </p>
-                <ul className="space-y-2 text-slate-600">
-                  <li>• Perceivable: Information and UI components are presentable in ways users can perceive</li>
-                  <li>• Operable: UI components and navigation are operable by all users</li>
-                  <li>• Understandable: Information and UI operation are understandable</li>
-                  <li>• Robust: Content can be interpreted reliably by a wide variety of assistive technologies</li>
-                </ul>
-              </CardContent>
-            </Card>
+            <h2 className="text-3xl font-bold text-forest-900 mb-4">Accessibility Features</h2>
+            
+            <h3 className="text-2xl font-semibold text-forest-800 mb-3">Navigation</h3>
+            <ul className="list-disc pl-6 mb-6 text-slate-600">
+              <li>Skip links for main content</li>
+              <li>Logical heading structure</li>
+              <li>Consistent navigation patterns</li>
+              <li>Breadcrumb navigation where appropriate</li>
+            </ul>
 
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-2xl text-forest-800 flex items-center gap-3">
-                  <span className="text-3xl">🌍</span>
-                  International Standards
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 mb-4">
-                  Our accessibility efforts align with international standards and best practices.
-                </p>
-                <ul className="space-y-2 text-slate-600">
-                  <li>• Section 508 (US Federal accessibility standards)</li>
-                  <li>• EN 301 549 (European accessibility standard)</li>
-                  <li>• Irish Web Content Accessibility Guidelines</li>
-                  <li>• W3C Web Accessibility Initiative (WAI) guidelines</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+            <h3 className="text-2xl font-semibold text-forest-800 mb-3">Visual Design</h3>
+            <ul className="list-disc pl-6 mb-6 text-slate-600">
+              <li>High contrast color schemes</li>
+              <li>Scalable text and interface elements</li>
+              <li>Clear visual hierarchy</li>
+              <li>Consistent button and link styling</li>
+            </ul>
 
-        {/* Accessibility Features */}
-        <section className="mb-16">
-          <h2 className="heading-section text-forest-900 mb-6 text-center">Accessibility Features</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-xl text-forest-800 flex items-center gap-2">
-                  <span className="text-2xl">⌨️</span>
-                  Keyboard Navigation
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 text-sm">
-                  All interactive elements can be accessed using only a keyboard. Use Tab to navigate forward, 
-                  Shift+Tab to navigate backward, and Enter or Space to activate buttons and links.
-                </p>
-              </CardContent>
-            </Card>
+            <h3 className="text-2xl font-semibold text-forest-800 mb-3">Interactive Elements</h3>
+            <ul className="list-disc pl-6 mb-6 text-slate-600">
+              <li>Keyboard accessible forms and buttons</li>
+              <li>Clear focus indicators</li>
+              <li>Descriptive link text</li>
+              <li>Error messages and validation feedback</li>
+            </ul>
 
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-xl text-forest-800 flex items-center gap-2">
-                  <span className="text-2xl">🔍</span>
-                  Screen Reader Support
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 text-sm">
-                  Our site is compatible with screen readers and other assistive technologies. 
-                  We use semantic HTML and ARIA labels to provide meaningful information.
-                </p>
-              </CardContent>
-            </Card>
+            <h3 className="text-2xl font-semibold text-forest-800 mb-3">Content</h3>
+            <ul className="list-disc pl-6 mb-6 text-slate-600">
+              <li>Alternative text for all images</li>
+              <li>Descriptive headings and labels</li>
+              <li>Plain language where possible</li>
+              <li>Logical reading order</li>
+            </ul>
 
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-xl text-forest-800 flex items-center gap-2">
-                  <span className="text-2xl">🎨</span>
-                  Color Contrast
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 text-sm">
-                  All text meets WCAG AA contrast requirements (4.5:1 for normal text, 3:1 for large text). 
-                  Color is not the only means of conveying information.
-                </p>
-              </CardContent>
-            </Card>
+            <h2 className="text-3xl font-bold text-forest-900 mb-4">Standards Compliance</h2>
+            <p className="text-slate-600 mb-6">
+              This website aims to conform to the Web Content Accessibility Guidelines (WCAG) 2.2 
+              at the AA level. These guidelines help make web content more accessible to people with 
+              disabilities and more usable for everyone.
+            </p>
 
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-xl text-forest-800 flex items-center gap-2">
-                  <span className="text-2xl">📱</span>
-                  Responsive Design
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 text-sm">
-                  The site works on all devices and screen sizes. Content reflows appropriately 
-                  and remains accessible on mobile, tablet, and desktop devices.
-                </p>
-              </CardContent>
-            </Card>
+            <h2 className="text-3xl font-bold text-forest-900 mb-4">Known Issues</h2>
+            <p className="text-slate-600 mb-6">
+              We are continuously working to improve the accessibility of our website. If you 
+              encounter any accessibility barriers, please contact us using the information below.
+            </p>
 
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-xl text-forest-800 flex items-center gap-2">
-                  <span className="text-2xl">🖼️</span>
-                  Alternative Text
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 text-sm">
-                  All images include descriptive alternative text. Decorative images are marked 
-                  as such to avoid confusion for screen reader users.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-xl text-forest-800 flex items-center gap-2">
-                  <span className="text-2xl">⚡</span>
-                  Focus Management
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 text-sm">
-                  Clear focus indicators help users understand where they are on the page. 
-                  Focus is managed appropriately in dynamic content and modal dialogs.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Known Issues */}
-        <section className="mb-16">
-          <h2 className="heading-section text-forest-900 mb-6">Known Issues & Improvements</h2>
-          <Card className="card-modern">
-            <CardContent className="pt-6">
-              <p className="text-slate-700 mb-4">
-                We are continuously working to improve accessibility. Here are areas we're currently addressing:
-              </p>
-              <ul className="space-y-3 text-slate-600">
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-600 font-bold">⚠️</span>
-                  <span>
-                    <strong>Map Component:</strong> We're working to improve keyboard navigation and screen reader 
-                    support for the interactive map component.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-600 font-bold">⚠️</span>
-                  <span>
-                    <strong>Image Upload:</strong> The drag-and-drop interface could be more accessible. 
-                    We're adding alternative methods for file selection.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-600 font-bold">⚠️</span>
-                  <span>
-                    <strong>Form Validation:</strong> Error messages could be more prominent and better 
-                    associated with form fields for screen reader users.
-                  </span>
-                </li>
+            <h2 className="text-3xl font-bold text-forest-900 mb-4">Feedback and Contact</h2>
+            <p className="text-slate-600 mb-6">
+              We welcome your feedback on the accessibility of Mushroom Map Ireland. If you 
+              encounter any accessibility barriers or have suggestions for improvement, please 
+              contact us:
+            </p>
+            
+            <div className="bg-forest-50 p-6 rounded-lg mb-6">
+              <h3 className="text-xl font-semibold text-forest-800 mb-3">Contact Information</h3>
+              <ul className="text-slate-600 space-y-2">
+                <li><strong>Email:</strong> accessibility@mushroommapireland.ie</li>
+                <li><strong>Response Time:</strong> We aim to respond within 5 business days</li>
+                <li><strong>Alternative Formats:</strong> We can provide information in alternative formats upon request</li>
               </ul>
-            </CardContent>
-          </Card>
-        </section>
+            </div>
 
-        {/* Testing & Feedback */}
-        <section className="mb-16">
-          <h2 className="heading-section text-forest-900 mb-6">Testing & Feedback</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-2xl text-forest-800">How We Test</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 mb-4">
-                  We use a combination of automated and manual testing to ensure accessibility:
-                </p>
-                <ul className="space-y-2 text-slate-600">
-                  <li>• Automated accessibility testing tools (axe-core, WAVE)</li>
-                  <li>• Manual testing with keyboard-only navigation</li>
-                  <li>• Screen reader testing (NVDA, JAWS, VoiceOver)</li>
-                  <li>• Color contrast analysis tools</li>
-                  <li>• User testing with people with disabilities</li>
-                </ul>
-              </CardContent>
-            </Card>
+            <h2 className="text-3xl font-bold text-forest-900 mb-4">Testing</h2>
+            <p className="text-slate-600 mb-6">
+              We regularly test our website using automated accessibility tools and manual testing 
+              with assistive technologies including:
+            </p>
+            
+            <ul className="list-disc pl-6 mb-6 text-slate-600">
+              <li>Screen readers (NVDA, JAWS, VoiceOver)</li>
+              <li>Keyboard-only navigation</li>
+              <li>Voice control software</li>
+              <li>Browser accessibility features</li>
+            </ul>
 
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="text-2xl text-forest-800">Report Issues</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 mb-4">
-                  If you encounter accessibility barriers, please let us know:
-                </p>
-                <ul className="space-y-2 text-slate-600">
-                  <li>• Email: accessibility@beacain.ie</li>
-                  <li>• Include the page URL and description of the issue</li>
-                  <li>• Tell us what assistive technology you're using</li>
-                  <li>• We'll respond within 5 business days</li>
-                </ul>
-              </CardContent>
-            </Card>
+            <h2 className="text-3xl font-bold text-forest-900 mb-4">Updates</h2>
+            <p className="text-slate-600 mb-6">
+              This accessibility statement was last updated on {new Date().toLocaleDateString('en-IE', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}. We will update this statement as we make improvements to our website's accessibility.
+            </p>
+
+            <div className="bg-amber-50 border-l-4 border-amber-400 p-6 mt-8">
+              <h3 className="text-lg font-semibold text-amber-800 mb-2">Important Notice</h3>
+              <p className="text-amber-700">
+                This website is for educational purposes only. Many edible mushroom species have 
+                toxic lookalikes. Always consult an expert mycologist in person before consuming 
+                any wild mushroom.
+              </p>
+            </div>
           </div>
-        </section>
-
-        {/* Contact & Resources */}
-        <section className="mb-16">
-          <h2 className="heading-section text-forest-900 mb-6">Contact & Resources</h2>
-          <Card className="card-modern">
-            <CardContent className="pt-6">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-xl font-bold text-forest-800 mb-4">Get Help</h3>
-                  <ul className="space-y-2 text-slate-600">
-                    <li>• <Link href="/about" className="text-forest-700 hover:underline">About Us</Link> - Learn more about our mission</li>
-                    <li>• <Link href="/contact" className="text-forest-700 hover:underline">Contact Support</Link> - Get technical help</li>
-                    <li>• <Link href="/glossary" className="text-forest-700 hover:underline">Glossary</Link> - Understand mushroom terminology</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-forest-800 mb-4">Accessibility Resources</h3>
-                  <ul className="space-y-2 text-slate-600">
-                    <li>• <a href="https://www.w3.org/WAI/WCAG21/quickref/" className="text-forest-700 hover:underline" target="_blank" rel="noopener noreferrer">WCAG Quick Reference</a></li>
-                    <li>• <a href="https://webaim.org/" className="text-forest-700 hover:underline" target="_blank" rel="noopener noreferrer">WebAIM Resources</a></li>
-                    <li>• <a href="https://www.abilitynet.org.uk/" className="text-forest-700 hover:underline" target="_blank" rel="noopener noreferrer">AbilityNet</a></li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Last Updated */}
-        <section className="text-center">
-          <p className="text-slate-500 text-sm">
-            This accessibility statement was last updated on {new Date().toLocaleDateString('en-IE', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}.
-          </p>
-        </section>
+        </div>
       </main>
     </div>
   );
