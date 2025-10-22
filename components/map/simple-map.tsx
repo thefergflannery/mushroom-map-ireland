@@ -10,6 +10,10 @@ interface SimpleMapProps {
     lng: number;
     status: string;
     photoUrl: string;
+    identification?: {
+      latinName?: string;
+      commonEn?: string;
+    } | null;
   }>;
 }
 
@@ -36,7 +40,7 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
       
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        // Use OpenStreetMap style as fallback
+        // Use simple grayscale style
         style: {
           version: 8,
           sources: {
@@ -51,7 +55,15 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
             {
               id: 'osm',
               type: 'raster',
-              source: 'osm'
+              source: 'osm',
+              paint: {
+                'raster-opacity': 0.7,
+                'raster-hue-rotate': 0,
+                'raster-saturation': -1, // Convert to grayscale
+                'raster-contrast': 0.8,
+                'raster-brightness-min': 0.1,
+                'raster-brightness-max': 0.9
+              }
             }
           ]
         },
@@ -71,17 +83,120 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
         if (observations.length > 0) {
           observations.forEach((obs) => {
             if (!map.current) return;
-            
-            const marker = new maplibregl.Marker({ color: '#2d6f54' })
+
+            // Create marker element
+            const markerEl = document.createElement('div');
+            markerEl.className = 'map-marker';
+            markerEl.style.cssText = `
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              border: 3px solid white;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: ${getStatusColor(obs.status)};
+              transition: transform 0.2s ease;
+            `;
+
+            // Add thumbnail image
+            const img = document.createElement('img');
+            img.src = obs.photoUrl;
+            img.style.cssText = `
+              width: 34px;
+              height: 34px;
+              border-radius: 50%;
+              object-fit: cover;
+            `;
+            img.alt = 'Observation';
+            markerEl.appendChild(img);
+
+            // Add hover effect
+            markerEl.addEventListener('mouseenter', () => {
+              markerEl.style.transform = 'scale(1.1)';
+            });
+            markerEl.addEventListener('mouseleave', () => {
+              markerEl.style.transform = 'scale(1)';
+            });
+
+            // Create marker
+            const marker = new maplibregl.Marker(markerEl)
               .setLngLat([obs.lng, obs.lat])
-              .setPopup(
-                new maplibregl.Popup().setHTML(`
-                  <div class="p-2">
-                    <img src="${obs.photoUrl}" alt="Observation" class="w-24 h-24 object-cover rounded" />
-                  </div>
-                `)
-              )
               .addTo(map.current);
+
+            // Create popup content
+            const popupContent = document.createElement('div');
+            popupContent.style.cssText = `
+              padding: 12px;
+              min-width: 200px;
+              font-family: system-ui, -apple-system, sans-serif;
+            `;
+
+            // Add thumbnail
+            const popupImg = document.createElement('img');
+            popupImg.src = obs.photoUrl;
+            popupImg.style.cssText = `
+              width: 60px;
+              height: 60px;
+              border-radius: 8px;
+              object-fit: cover;
+              margin-bottom: 8px;
+              display: block;
+            `;
+            popupImg.alt = 'Observation';
+            popupContent.appendChild(popupImg);
+
+            // Add species name
+            const speciesName = document.createElement('div');
+            if (obs.identification?.latinName) {
+              speciesName.innerHTML = `
+                <div style="font-weight: 600; font-style: italic; color: #1f2937; margin-bottom: 2px;">
+                  ${obs.identification.latinName}
+                </div>
+                <div style="font-size: 14px; color: #6b7280;">
+                  ${obs.identification.commonEn || 'Unknown'}
+                </div>
+              `;
+            } else {
+              speciesName.innerHTML = `
+                <div style="font-weight: 600; color: #1f2937;">
+                  Needs Identification
+                </div>
+              `;
+            }
+            popupContent.appendChild(speciesName);
+
+            // Add status badge
+            const statusBadge = document.createElement('div');
+            statusBadge.style.cssText = `
+              display: inline-block;
+              padding: 4px 8px;
+              border-radius: 12px;
+              font-size: 12px;
+              font-weight: 500;
+              margin-top: 8px;
+              background: ${getStatusColor(obs.status)};
+              color: white;
+            `;
+            statusBadge.textContent = obs.status.replace('_', ' ');
+            popupContent.appendChild(statusBadge);
+
+            // Create popup
+            const popup = new maplibregl.Popup({
+              offset: 25,
+              closeButton: true,
+              closeOnClick: false
+            }).setDOMContent(popupContent);
+
+            // Add click handler to open observation page
+            markerEl.addEventListener('click', () => {
+              window.open(`/observation/${obs.id}`, '_blank');
+            });
+
+            // Add popup to marker
+            marker.setPopup(popup);
           });
           console.log(`Added ${observations.length} markers`);
         } else {
