@@ -54,33 +54,8 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
       
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        // Use simple grayscale style
-        style: {
-          version: 8,
-          sources: {
-            'osm': {
-              type: 'raster',
-              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-              tileSize: 256,
-              attribution: '© OpenStreetMap contributors'
-            }
-          },
-          layers: [
-            {
-              id: 'osm',
-              type: 'raster',
-              source: 'osm',
-              paint: {
-                'raster-opacity': 0.7,
-                'raster-hue-rotate': 0,
-                'raster-saturation': -1, // Convert to grayscale
-                'raster-contrast': 0.8,
-                'raster-brightness-min': 0.1,
-                'raster-brightness-max': 0.9
-              }
-            }
-          ]
-        },
+        // Use CartoDB Positron style for better readability
+        style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
         center: [-8.2439, 53.4129],
         zoom: 6.5,
       });
