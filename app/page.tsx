@@ -24,14 +24,22 @@ async function getObservations() {
     where: {
       status: 'CONSENSUS', // Only show approved observations on homepage
     },
-    take: 50,
+    take: 100, // Increase for better clustering display
     orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      lat: true,
-      lng: true,
-      photoUrl: true,
-      status: true,
+    include: {
+      identifications: {
+        where: { isConsensus: true },
+        include: {
+          species: {
+            select: {
+              id: true,
+              latinName: true,
+              commonEn: true,
+            },
+          },
+        },
+        take: 1,
+      },
     },
   });
   return observations;
@@ -49,6 +57,12 @@ export default async function HomePage() {
     lng: obs.lng,
     photoUrl: obs.photoUrl,
     status: obs.status,
+    identification: obs.identifications[0]?.species
+      ? {
+          latinName: obs.identifications[0].species.latinName,
+          commonEn: obs.identifications[0].species.commonEn,
+        }
+      : null,
   }));
 
   return (
@@ -220,7 +234,7 @@ export default async function HomePage() {
                   </div>
                 }
               >
-                <MapClient observations={mapObservations} />
+                <MapClient observations={mapObservations} viewMode="markers" />
               </Suspense>
             </div>
           </div>

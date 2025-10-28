@@ -66,67 +66,60 @@ export default function MapPage() {
   const fetchObservations = async () => {
     setIsLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.set('limit', '500'); // Increase limit for heatmap
+      // Build queries for all statuses we want
+      const statusesToFetch: string[] = [];
       
-      // When status is 'all', fetch CONSENSUS and HAS_CANDIDATES (default behavior like homepage)
-      // We'll need to make multiple calls or filter appropriately
       if (selectedStatus === 'all') {
-        // For 'all', we'll fetch both statuses and combine
-        // First, try fetching without status filter to get all
-        // Then filter client-side
-        params.set('status', 'CONSENSUS'); // Start with CONSENSUS
+        // Fetch both CONSENSUS and HAS_CANDIDATES
+        statusesToFetch.push('CONSENSUS', 'HAS_CANDIDATES');
       } else {
-        params.set('status', selectedStatus);
+        statusesToFetch.push(selectedStatus);
       }
       
-      if (selectedSpecies !== 'all') {
-        params.set('speciesId', selectedSpecies);
-      }
+      // Fetch observations for each status and combine
+      const allObservations: Observation[] = [];
       
-      if (selectedMonth !== null) {
-        params.set('month', selectedMonth.toString());
-        params.set('year', selectedYear.toString());
-      }
-      
-      const response = await fetch(`/api/observations?${params.toString()}`);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API error:', errorText);
-        throw new Error(`Failed to fetch observations: ${response.status} ${errorText}`);
-      }
-      
-      const result = await response.json();
-      console.log('Fetched observations:', result.data?.length || 0, 'total');
-      
-      let filteredObservations = result.data || [];
-      
-      // If status is 'all', also fetch HAS_CANDIDATES and combine
-      if (selectedStatus === 'all') {
-        const params2 = new URLSearchParams(params);
-        params2.set('status', 'HAS_CANDIDATES');
+      for (const status of statusesToFetch) {
+        const params = new URLSearchParams();
+        params.set('limit', '500');
+        params.set('status', status);
+        
+        if (selectedSpecies !== 'all') {
+          params.set('speciesId', selectedSpecies);
+        }
+        
+        if (selectedMonth !== null) {
+          params.set('month', selectedMonth.toString());
+          params.set('year', selectedYear.toString());
+        }
         
         try {
-          const response2 = await fetch(`/api/observations?${params2.toString()}`);
-          if (response2.ok) {
-            const result2 = await response2.json();
-            const additional = result2.data || [];
-            // Combine and deduplicate by ID
-            const existingIds = new Set(filteredObservations.map((obs: Observation) => obs.id));
-            const newObservations = additional.filter((obs: Observation) => !existingIds.has(obs.id));
-            filteredObservations = [...filteredObservations, ...newObservations];
-            console.log('After adding HAS_CANDIDATES:', filteredObservations.length, 'total observations');
+          const response = await fetch(`/api/observations?${params.toString()}`);
+          if (response.ok) {
+            const result = await response.json();
+            const observations = result.data || [];
+            allObservations.push(...observations);
+            console.log(`Fetched ${observations.length} observations with status ${status}`);
+          } else {
+            const errorText = await response.text();
+            console.error(`API error for ${status}:`, response.status, errorText);
           }
         } catch (err) {
-          console.warn('Failed to fetch HAS_CANDIDATES observations:', err);
+          console.error(`Failed to fetch observations for ${status}:`, err);
         }
       }
       
-      setObservations(filteredObservations);
+      // Deduplicate by ID (in case of overlap)
+      const uniqueObservations = Array.from(
+        new Map(allObservations.map(obs => [obs.id, obs])).values()
+      );
+      
+      console.log('Total unique observations:', uniqueObservations.length);
+      setObservations(uniqueObservations);
       setLastRefresh(new Date());
     } catch (error) {
       console.error('Error fetching observations:', error);
-      setObservations([]); // Set empty array on error
+      setObservations([]);
     } finally {
       setIsLoading(false);
     }
