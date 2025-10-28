@@ -102,7 +102,11 @@ export default async function ObservationPage({ params }: PageProps) {
     notFound();
   }
 
-  const consensusSpecies = observation.identifications.find((id) => id.isConsensus)?.species;
+  const consensusId = observation.identifications.find((id) => id.isConsensus);
+  const consensusSpecies = consensusId?.species || (consensusId?.speciesName ? { 
+    latinName: consensusId.speciesName, 
+    commonEn: consensusId.speciesName 
+  } : null);
   const displayCoords = getDisplayCoordinates(
     observation.lat,
     observation.lng,
@@ -278,6 +282,14 @@ export default async function ObservationPage({ params }: PageProps) {
                                     <p className="text-sm text-slate-500">({identification.species.commonGa})</p>
                                   )}
                                 </div>
+                              ) : identification.speciesName ? (
+                                <div>
+                                  <h3 className="text-2xl font-bold text-forest-900 italic">{identification.speciesName}</h3>
+                                  <p className="text-sm text-slate-500 italic">Species not yet in database</p>
+                                  <Badge variant="outline" className="mt-2 text-xs">
+                                    Custom Identification
+                                  </Badge>
+                                </div>
                               ) : (
                                 <p className="text-slate-500">Unknown species</p>
                               )}
@@ -291,6 +303,11 @@ export default async function ObservationPage({ params }: PageProps) {
                               {identification.species && (
                                 <Badge className={`${edibilityColors[identification.species.edibility]} px-3 py-1 rounded-full text-xs font-bold`}>
                                   {identification.species.edibility}
+                                </Badge>
+                              )}
+                              {!identification.species && identification.speciesName && (
+                                <Badge variant="outline" className="px-3 py-1 rounded-full text-xs font-bold">
+                                  Not in Database
                                 </Badge>
                               )}
                             </div>

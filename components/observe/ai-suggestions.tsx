@@ -17,6 +17,11 @@ export function AISuggestions({ imageUrl, onSpeciesSelect }: AISuggestionsProps)
   const [disclaimer, setDisclaimer] = useState('');
 
   const handleGetSuggestions = async () => {
+    if (!imageUrl) {
+      setError('Please upload an image first');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuggestions([]);
@@ -31,26 +36,41 @@ export function AISuggestions({ imageUrl, onSpeciesSelect }: AISuggestionsProps)
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get AI suggestions');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to get AI suggestions (${response.status})`);
       }
 
       const data = await response.json();
+      
+      if (!data.data) {
+        throw new Error('Invalid response from AI service');
+      }
+      
       setSuggestions(data.data.candidates || []);
       setDisclaimer(data.data.disclaimer || '');
     } catch (err: any) {
-      setError(err.message || 'Failed to get AI suggestions');
+      console.error('AI suggestion error:', err);
+      setError(err.message || 'Failed to get AI suggestions. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleSelectSuggestion = (suggestion: any) => {
-    if (onSpeciesSelect && suggestion.species) {
-      onSpeciesSelect(
-        suggestion.species.id,
-        suggestion.confidence || 0.5,
-        suggestion.rationale || ''
-      );
+    if (onSpeciesSelect) {
+      if (suggestion.species) {
+        // Species in database
+        onSpeciesSelect(
+          suggestion.species.id,
+          suggestion.confidence || 0.5,
+          suggestion.rationale || ''
+        );
+      } else if (suggestion.label) {
+        // Species not in database - use custom name
+        // Note: This would need to be handled differently if we want to allow
+        // AI suggestions to create identifications with custom names
+        console.warn('AI suggested species not in database:', suggestion.label);
+      }
     }
   };
 
@@ -70,11 +90,11 @@ export function AISuggestions({ imageUrl, onSpeciesSelect }: AISuggestionsProps)
           <div>
             <Button
               onClick={handleGetSuggestions}
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              disabled={loading || !imageUrl}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
               size="lg"
             >
-              {loading ? 'Analyzing...' : '✨ Get AI Suggestions'}
+              {loading ? 'Analyzing...' : !imageUrl ? 'Upload Image First' : '✨ Get AI Suggestions'}
             </Button>
             <p className="text-xs text-gray-600 mt-2 text-center">
               AI will analyze your photo and suggest possible identifications

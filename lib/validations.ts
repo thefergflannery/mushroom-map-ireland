@@ -37,9 +37,13 @@ export const observationFilterSchema = z.object({
 export const createIdentificationSchema = z.object({
   observationId: z.string(),
   speciesId: z.string().optional(),
+  speciesName: z.string().max(200).optional(), // For species not in database
   confidence: z.number().min(0).max(1).optional(),
   rationale: z.string().max(1000).optional(),
   method: z.enum(['AI', 'HUMAN']).default('HUMAN'),
+}).refine((data) => data.speciesId || data.speciesName, {
+  message: "Either speciesId or speciesName must be provided",
+  path: ["speciesId"],
 });
 
 export const updateIdentificationSchema = z.object({

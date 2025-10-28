@@ -162,6 +162,7 @@ model Identification {
   proposer       User?    @relation(fields: [proposerUserId], references: [id], onDelete: SetNull)
   speciesId      String?
   species        Species? @relation(fields: [speciesId], references: [id], onDelete: SetNull)
+  speciesName    String?  // For species not in database (free-text identification)
   method         IdMethod
   confidence     Float?
   rationale      String?

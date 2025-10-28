@@ -22,6 +22,8 @@ export function IdentificationForm({ observationId, availableSpecies }: Identifi
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [speciesId, setSpeciesId] = useState('');
+  const [speciesName, setSpeciesName] = useState(''); // For species not in database
+  const [useCustomName, setUseCustomName] = useState(false);
   const [confidence, setConfidence] = useState(0.7);
   const [rationale, setRationale] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -40,8 +42,8 @@ export function IdentificationForm({ observationId, availableSpecies }: Identifi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!speciesId) {
-      setError('Please select a species');
+    if (!speciesId && !speciesName.trim()) {
+      setError('Please select a species or enter a species name');
       return;
     }
 
@@ -61,7 +63,8 @@ export function IdentificationForm({ observationId, availableSpecies }: Identifi
         },
         body: JSON.stringify({
           observationId,
-          speciesId,
+          speciesId: speciesId || undefined,
+          speciesName: speciesName.trim() || undefined,
           confidence,
           rationale: rationale.trim(),
           method: 'HUMAN',
@@ -77,6 +80,8 @@ export function IdentificationForm({ observationId, availableSpecies }: Identifi
       router.refresh();
       setIsOpen(false);
       setSpeciesId('');
+      setSpeciesName('');
+      setUseCustomName(false);
       setRationale('');
       setConfidence(0.7);
     } catch (err: any) {
@@ -110,52 +115,105 @@ export function IdentificationForm({ observationId, availableSpecies }: Identifi
           {/* Species Search */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Species *</label>
-            <input
-              type="text"
-              placeholder="Search species by name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-forest-600 focus:border-transparent"
-            />
             
-            {searchTerm && filteredSpecies.length > 0 && (
-              <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-md bg-white">
-                {filteredSpecies.slice(0, 10).map((sp) => (
-                  <button
-                    key={sp.id}
-                    type="button"
-                    onClick={() => {
-                      setSpeciesId(sp.id);
-                      setSearchTerm('');
-                    }}
-                    className="w-full px-3 py-2 text-left hover:bg-gray-100 border-b last:border-0"
-                  >
-                    <p className="font-medium text-sm italic">{sp.latinName}</p>
-                    <p className="text-xs text-gray-600">{sp.commonEn}</p>
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Toggle between database search and custom name */}
+            <div className="flex gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setUseCustomName(false);
+                  setSpeciesName('');
+                  setSpeciesId('');
+                }}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  !useCustomName
+                    ? 'bg-forest-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Search Database
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setUseCustomName(true);
+                  setSpeciesId('');
+                  setSearchTerm('');
+                }}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  useCustomName
+                    ? 'bg-forest-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Enter Custom Name
+              </button>
+            </div>
 
-            {selectedSpecies && (
-              <div className="p-3 bg-white border border-forest-300 rounded-md">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-medium italic">{selectedSpecies.latinName}</p>
-                    <p className="text-sm text-gray-600">{selectedSpecies.commonEn}</p>
-                    {selectedSpecies.commonGa && (
-                      <p className="text-xs text-gray-500">{selectedSpecies.commonGa}</p>
-                    )}
+            {!useCustomName ? (
+              <>
+                <input
+                  type="text"
+                  placeholder="Search species by name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-forest-600 focus:border-transparent"
+                />
+                
+                {searchTerm && filteredSpecies.length > 0 && (
+                  <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-md bg-white">
+                    {filteredSpecies.slice(0, 10).map((sp) => (
+                      <button
+                        key={sp.id}
+                        type="button"
+                        onClick={() => {
+                          setSpeciesId(sp.id);
+                          setSearchTerm('');
+                        }}
+                        className="w-full px-3 py-2 text-left hover:bg-gray-100 border-b last:border-0"
+                      >
+                        <p className="font-medium text-sm italic">{sp.latinName}</p>
+                        <p className="text-xs text-gray-600">{sp.commonEn}</p>
+                      </button>
+                    ))}
                   </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setSpeciesId('')}
-                  >
-                    Change
-                  </Button>
-                </div>
+                )}
+
+                {selectedSpecies && (
+                  <div className="p-3 bg-white border border-forest-300 rounded-md">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium italic">{selectedSpecies.latinName}</p>
+                        <p className="text-sm text-gray-600">{selectedSpecies.commonEn}</p>
+                        {selectedSpecies.commonGa && (
+                          <p className="text-xs text-gray-500">{selectedSpecies.commonGa}</p>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setSpeciesId('')}
+                      >
+                        Change
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder="Enter scientific name (e.g., Amanita muscaria)..."
+                  value={speciesName}
+                  onChange={(e) => setSpeciesName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-forest-600 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500">
+                  Enter the scientific (Latin) name for species not yet in our database. 
+                  This allows the community to identify new species.
+                </p>
               </div>
             )}
           </div>
@@ -216,7 +274,7 @@ export function IdentificationForm({ observationId, availableSpecies }: Identifi
             </Button>
             <Button
               type="submit"
-              disabled={!speciesId || !rationale.trim() || submitting}
+              disabled={(!speciesId && !speciesName.trim()) || !rationale.trim() || submitting}
               className="flex-1 bg-forest-600 hover:bg-forest-700"
             >
               {submitting ? 'Submitting...' : 'Submit Identification'}

@@ -250,7 +250,7 @@ export function ObserveClient({ user }: ObserveClientProps) {
                     {/* AI Suggestions */}
                     <div>
                       <h3 className="text-lg font-semibold mb-3">AI Suggestions</h3>
-                      <AISuggestions photoUrl={photoUrl} />
+                      <AISuggestions imageUrl={photoUrl} />
                     </div>
 
                     {/* Date Observed */}

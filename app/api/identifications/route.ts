@@ -49,12 +49,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Validate that either speciesId or speciesName is provided
+    if (!data.speciesId && !data.speciesName) {
+      return NextResponse.json({ error: 'Either speciesId or speciesName must be provided' }, { status: 400 });
+    }
+
     // Create identification
     const identification = await prisma.identification.create({
       data: {
         observationId: data.observationId,
         proposerUserId: session.user.id,
-        speciesId: data.speciesId,
+        speciesId: data.speciesId || null,
+        speciesName: data.speciesName || null,
         method: data.method,
         confidence: data.confidence,
         rationale: data.rationale,
