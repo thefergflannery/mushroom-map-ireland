@@ -172,6 +172,14 @@ export default function SimpleMap({ observations, viewMode = 'markers', selected
           window.open(`/observation/${obs.id}`, '_blank');
         });
 
+        // Add hover effect for single observation markers
+        markerEl.addEventListener('mouseenter', () => {
+          markerEl.style.transform = 'scale(1.1)';
+        });
+        markerEl.addEventListener('mouseleave', () => {
+          markerEl.style.transform = 'scale(1)';
+        });
+
         // Create marker - FIX: use cluster.lng/lat, not obs.lng/lat
         const marker = new maplibregl.Marker(markerEl)
           .setLngLat([cluster.lng, cluster.lat])
@@ -234,6 +242,14 @@ export default function SimpleMap({ observations, viewMode = 'markers', selected
           });
         });
 
+        // Add hover effect for cluster markers
+        markerEl.addEventListener('mouseenter', () => {
+          markerEl.style.transform = 'scale(1.1)';
+        });
+        markerEl.addEventListener('mouseleave', () => {
+          markerEl.style.transform = 'scale(1)';
+        });
+
         // Create marker - use cluster coordinates
         const marker = new maplibregl.Marker(markerEl)
           .setLngLat([cluster.lng, cluster.lat])
@@ -242,14 +258,6 @@ export default function SimpleMap({ observations, viewMode = 'markers', selected
         marker.setPopup(popup);
         markersRef.current.push(marker);
       }
-
-      // Add hover effect
-      markerEl.addEventListener('mouseenter', () => {
-        markerEl.style.transform = 'scale(1.1)';
-      });
-      markerEl.addEventListener('mouseleave', () => {
-        markerEl.style.transform = 'scale(1)';
-      });
     });
   };
 

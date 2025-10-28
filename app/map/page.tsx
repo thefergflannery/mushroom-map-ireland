@@ -69,8 +69,14 @@ export default function MapPage() {
       const params = new URLSearchParams();
       params.set('limit', '500'); // Increase limit for heatmap
       
-      // Apply status filter - when 'all', don't filter by status (show all)
-      if (selectedStatus !== 'all') {
+      // When status is 'all', fetch CONSENSUS and HAS_CANDIDATES (default behavior like homepage)
+      // We'll need to make multiple calls or filter appropriately
+      if (selectedStatus === 'all') {
+        // For 'all', we'll fetch both statuses and combine
+        // First, try fetching without status filter to get all
+        // Then filter client-side
+        params.set('status', 'CONSENSUS'); // Start with CONSENSUS
+      } else {
         params.set('status', selectedStatus);
       }
       
@@ -95,13 +101,25 @@ export default function MapPage() {
       
       let filteredObservations = result.data || [];
       
-      // When status is 'all', default to showing only accepted observations
-      // (CONSENSUS and HAS_CANDIDATES) for better UX
+      // If status is 'all', also fetch HAS_CANDIDATES and combine
       if (selectedStatus === 'all') {
-        filteredObservations = filteredObservations.filter((obs: Observation) => 
-          ['CONSENSUS', 'HAS_CANDIDATES'].includes(obs.status)
-        );
-        console.log('After filtering for status "all":', filteredObservations.length, 'observations');
+        const params2 = new URLSearchParams(params);
+        params2.set('status', 'HAS_CANDIDATES');
+        
+        try {
+          const response2 = await fetch(`/api/observations?${params2.toString()}`);
+          if (response2.ok) {
+            const result2 = await response2.json();
+            const additional = result2.data || [];
+            // Combine and deduplicate by ID
+            const existingIds = new Set(filteredObservations.map((obs: Observation) => obs.id));
+            const newObservations = additional.filter((obs: Observation) => !existingIds.has(obs.id));
+            filteredObservations = [...filteredObservations, ...newObservations];
+            console.log('After adding HAS_CANDIDATES:', filteredObservations.length, 'total observations');
+          }
+        } catch (err) {
+          console.warn('Failed to fetch HAS_CANDIDATES observations:', err);
+        }
       }
       
       setObservations(filteredObservations);

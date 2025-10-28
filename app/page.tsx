@@ -52,7 +52,7 @@ export default async function HomePage() {
   }));
 
   return (
-    <div className="min-h-screen bg-slate-50 -mt-20">
+    <div className="min-h-screen bg-slate-50">
 
       {/* Hero Section - Full bleed photography */}
       <section className="relative h-[85vh] min-h-[600px] overflow-hidden">
