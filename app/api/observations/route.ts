@@ -28,20 +28,19 @@ export async function GET(request: NextRequest) {
     const session = await auth();
     const viewerRole = session?.user ? (session.user as any).role : undefined;
 
-    // Build where clause
-    const where: any = {};
-    const andConditions: any[] = [];
+    // Build where clause - collect all conditions first
+    const conditions: any[] = [];
 
     if (params.status) {
-      where.status = params.status;
+      conditions.push({ status: params.status });
     }
 
     if (params.userId) {
-      where.userId = params.userId;
+      conditions.push({ userId: params.userId });
     }
 
     if (params.since) {
-      where.createdAt = { gte: new Date(params.since) };
+      conditions.push({ createdAt: { gte: new Date(params.since) } });
     }
 
     // Month/year filtering (using observedAt field when available, fallback to createdAt)
@@ -49,9 +48,9 @@ export async function GET(request: NextRequest) {
       const year = params.year || new Date().getFullYear();
       const month = params.month || new Date().getMonth() + 1; // 1-12
       const startDate = new Date(year, month - 1, 1); // monthIndex is 0-based, so month-1
-      const endDate = new Date(year, month, 0, 23, 59, 59, 999); // month gives last day of (month-1), which is correct
+      const endDate = new Date(year, month, 0, 23, 59, 59, 999); // last day of the month
       
-      andConditions.push({
+      conditions.push({
         OR: [
           {
             observedAt: {
@@ -78,24 +77,28 @@ export async function GET(request: NextRequest) {
     // Bbox filter (simplified - real implementation would be more sophisticated)
     if (params.bbox) {
       const [minLng, minLat, maxLng, maxLat] = params.bbox.split(',').map(Number);
-      where.lat = { gte: minLat, lte: maxLat };
-      where.lng = { gte: minLng, lte: maxLng };
+      conditions.push({ 
+        lat: { gte: minLat, lte: maxLat },
+        lng: { gte: minLng, lte: maxLng },
+      });
     }
 
     // Filter by species (through consensus identification)
     if (params.speciesId) {
-      where.identifications = {
-        some: {
-          speciesId: params.speciesId,
-          isConsensus: true,
+      conditions.push({
+        identifications: {
+          some: {
+            speciesId: params.speciesId,
+            isConsensus: true,
+          },
         },
-      };
+      });
     }
 
-    // Combine all conditions
-    if (andConditions.length > 0) {
-      where.AND = andConditions;
-    }
+    // Combine all conditions into where clause
+    const where: any = conditions.length > 0 
+      ? { AND: conditions }
+      : {};
 
     const observations = await prisma.observation.findMany({
       where,

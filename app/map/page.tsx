@@ -42,7 +42,7 @@ export default function MapPage() {
   
   // Filter states
   const [selectedSpecies, setSelectedSpecies] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all'); // 'all' means show CONSENSUS and HAS_CANDIDATES by default
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [viewMode, setViewMode] = useState<'markers' | 'heatmap'>('markers');
@@ -69,8 +69,7 @@ export default function MapPage() {
       const params = new URLSearchParams();
       params.set('limit', '500'); // Increase limit for heatmap
       
-      // Note: API only supports single status filter, so 'all' means no filter
-      // We'll filter client-side for 'all' status, but default to fetching CONSENSUS and HAS_CANDIDATES
+      // Apply status filter - when 'all', don't filter by status (show all)
       if (selectedStatus !== 'all') {
         params.set('status', selectedStatus);
       }
@@ -85,22 +84,31 @@ export default function MapPage() {
       }
       
       const response = await fetch(`/api/observations?${params.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch observations');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API error:', errorText);
+        throw new Error(`Failed to fetch observations: ${response.status} ${errorText}`);
+      }
       
       const result = await response.json();
+      console.log('Fetched observations:', result.data?.length || 0, 'total');
+      
       let filteredObservations = result.data || [];
       
-      // Client-side filter for 'all' status if needed
+      // When status is 'all', default to showing only accepted observations
+      // (CONSENSUS and HAS_CANDIDATES) for better UX
       if (selectedStatus === 'all') {
         filteredObservations = filteredObservations.filter((obs: Observation) => 
           ['CONSENSUS', 'HAS_CANDIDATES'].includes(obs.status)
         );
+        console.log('After filtering for status "all":', filteredObservations.length, 'observations');
       }
       
       setObservations(filteredObservations);
       setLastRefresh(new Date());
     } catch (error) {
       console.error('Error fetching observations:', error);
+      setObservations([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
