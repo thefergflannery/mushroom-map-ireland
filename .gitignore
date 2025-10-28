@@ -37,7 +37,7 @@ yarn-error.log*
 next-env.d.ts
 
 # prisma
-prisma/migrations/
+# prisma/migrations/ - Keep migrations in git for deployment
 
 # playwright
 /test-results/
