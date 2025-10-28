@@ -81,7 +81,7 @@ export default function MapPage() {
       
       for (const status of statusesToFetch) {
         const params = new URLSearchParams();
-        params.set('limit', '500');
+        params.set('limit', '100'); // API maximum is 100
         params.set('status', status);
         
         if (selectedSpecies !== 'all') {
