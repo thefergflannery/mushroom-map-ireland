@@ -14,5 +14,23 @@ const SimpleMap = dynamic(() => import('./simple-map'), {
   ),
 });
 
-export default SimpleMap;
+interface MapClientProps {
+  observations: Array<{
+    id: string;
+    lat: number;
+    lng: number;
+    photoUrl: string;
+    status: string;
+    identification?: {
+      latinName?: string;
+      commonEn?: string;
+    } | null;
+  }>;
+  viewMode?: 'markers' | 'heatmap';
+  selectedMonth?: number | null;
+}
+
+export default function MapClient({ observations, viewMode = 'markers', selectedMonth = null }: MapClientProps) {
+  return <SimpleMap observations={observations} viewMode={viewMode} selectedMonth={selectedMonth} />;
+}
 

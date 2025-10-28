@@ -27,6 +27,8 @@ export const observationFilterSchema = z.object({
   userId: z.string().optional(),
   speciesId: z.string().optional(),
   since: z.string().datetime().optional(),
+  month: z.number().min(1).max(12).optional(), // 1-12 for month filtering
+  year: z.number().min(2000).max(2100).optional(), // Year filtering
   limit: z.number().min(1).max(100).default(50),
   offset: z.number().min(0).default(0),
 });

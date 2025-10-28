@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
       userId: searchParams.get('userId') || undefined,
       speciesId: searchParams.get('speciesId') || undefined,
       since: searchParams.get('since') || undefined,
+      month: searchParams.get('month') ? parseInt(searchParams.get('month')!) : undefined,
+      year: searchParams.get('year') ? parseInt(searchParams.get('year')!) : undefined,
       limit: parseInt(searchParams.get('limit') || '50'),
       offset: parseInt(searchParams.get('offset') || '0'),
     });
@@ -28,6 +30,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {};
+    const andConditions: any[] = [];
 
     if (params.status) {
       where.status = params.status;
@@ -39,6 +42,37 @@ export async function GET(request: NextRequest) {
 
     if (params.since) {
       where.createdAt = { gte: new Date(params.since) };
+    }
+
+    // Month/year filtering (using observedAt field when available, fallback to createdAt)
+    if (params.month || params.year) {
+      const year = params.year || new Date().getFullYear();
+      const month = params.month || new Date().getMonth() + 1; // 1-12
+      const startDate = new Date(year, month - 1, 1); // monthIndex is 0-based, so month-1
+      const endDate = new Date(year, month, 0, 23, 59, 59, 999); // month gives last day of (month-1), which is correct
+      
+      andConditions.push({
+        OR: [
+          {
+            observedAt: {
+              gte: startDate,
+              lte: endDate,
+            },
+          },
+          // Fallback to createdAt if observedAt is null
+          {
+            AND: [
+              { observedAt: null },
+              {
+                createdAt: {
+                  gte: startDate,
+                  lte: endDate,
+                },
+              },
+            ],
+          },
+        ],
+      });
     }
 
     // Bbox filter (simplified - real implementation would be more sophisticated)
@@ -56,6 +90,11 @@ export async function GET(request: NextRequest) {
           isConsensus: true,
         },
       };
+    }
+
+    // Combine all conditions
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     const observations = await prisma.observation.findMany({

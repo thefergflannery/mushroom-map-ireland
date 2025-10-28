@@ -16,11 +16,14 @@ interface SimpleMapProps {
       commonEn?: string;
     } | null;
   }>;
+  viewMode?: 'markers' | 'heatmap';
+  selectedMonth?: number | null;
 }
 
-export default function SimpleMap({ observations }: SimpleMapProps) {
+export default function SimpleMap({ observations, viewMode = 'markers', selectedMonth = null }: SimpleMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -38,6 +41,299 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
     }
   };
 
+  // Clear all markers
+  const clearMarkers = () => {
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
+    
+    // Remove heatmap layer and source if they exist
+    if (map.current && map.current.getSource('heatmap-source')) {
+      if (map.current.getLayer('heatmap-layer')) {
+        map.current.removeLayer('heatmap-layer');
+      }
+      map.current.removeSource('heatmap-source');
+    }
+  };
+
+  // Add markers to map
+  const addMarkers = () => {
+    if (!map.current || observations.length === 0) return;
+    
+    clearMarkers();
+    
+    const currentZoom = map.current.getZoom();
+    const precision = getClusteringPrecision(currentZoom);
+    const clusters = clusterObservations(observations, precision);
+    
+    console.log(`Clustering ${observations.length} observations into ${clusters.length} clusters with precision ${precision}`);
+    
+    clusters.forEach((cluster) => {
+      if (!map.current) return;
+
+      // Create cluster marker element
+      const markerEl = document.createElement('div');
+      markerEl.className = 'map-cluster-marker';
+      
+      if (cluster.count === 1) {
+        // Single observation - show thumbnail
+        const obs = cluster.observations[0];
+        markerEl.style.cssText = `
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: ${getStatusColor(obs.status)};
+          transition: transform 0.2s ease;
+        `;
+
+        // Add thumbnail image
+        const img = document.createElement('img');
+        img.src = obs.photoUrl;
+        img.style.cssText = `
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          object-fit: cover;
+        `;
+        img.alt = 'Observation';
+        markerEl.appendChild(img);
+
+        // Create popup content
+        const popupContent = document.createElement('div');
+        popupContent.style.cssText = `
+          padding: 12px;
+          min-width: 200px;
+          font-family: system-ui, -apple-system, sans-serif;
+        `;
+
+        // Add thumbnail
+        const popupImg = document.createElement('img');
+        popupImg.src = obs.photoUrl;
+        popupImg.style.cssText = `
+          width: 60px;
+          height: 60px;
+          border-radius: 8px;
+          object-fit: cover;
+          margin-bottom: 8px;
+          display: block;
+        `;
+        popupImg.alt = 'Observation';
+        popupContent.appendChild(popupImg);
+
+        // Add species name
+        const speciesName = document.createElement('div');
+        if (obs.identification?.latinName) {
+          speciesName.innerHTML = `
+            <div style="font-weight: 600; font-style: italic; color: #1f2937; margin-bottom: 2px;">
+              ${obs.identification.latinName}
+            </div>
+            <div style="font-size: 14px; color: #6b7280;">
+              ${obs.identification.commonEn || 'Unknown'}
+            </div>
+          `;
+        } else {
+          speciesName.innerHTML = `
+            <div style="font-weight: 600; color: #1f2937;">
+              Needs Identification
+            </div>
+          `;
+        }
+        popupContent.appendChild(speciesName);
+
+        // Add status badge
+        const statusBadge = document.createElement('div');
+        statusBadge.style.cssText = `
+          display: inline-block;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 500;
+          margin-top: 8px;
+          background: ${getStatusColor(obs.status)};
+          color: white;
+        `;
+        statusBadge.textContent = obs.status.replace('_', ' ');
+        popupContent.appendChild(statusBadge);
+
+        // Create popup
+        const popup = new maplibregl.Popup({
+          offset: 25,
+          closeButton: true,
+          closeOnClick: false
+        }).setDOMContent(popupContent);
+
+        // Add click handler to open observation page
+        markerEl.addEventListener('click', () => {
+          window.open(`/observation/${obs.id}`, '_blank');
+        });
+
+        // Create marker - FIX: use cluster.lng/lat, not obs.lng/lat
+        const marker = new maplibregl.Marker(markerEl)
+          .setLngLat([cluster.lng, cluster.lat])
+          .addTo(map.current);
+
+        marker.setPopup(popup);
+        markersRef.current.push(marker);
+      } else {
+        // Multiple observations - show count circle
+        const size = Math.min(60, 30 + cluster.count * 2);
+        markerEl.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #10b981;
+          color: white;
+          font-weight: bold;
+          font-size: ${Math.min(16, 12 + cluster.count)}px;
+          transition: transform 0.2s ease;
+        `;
+        markerEl.textContent = cluster.count.toString();
+
+        // Create popup content for cluster
+        const popupContent = document.createElement('div');
+        popupContent.style.cssText = `
+          padding: 12px;
+          min-width: 200px;
+          font-family: system-ui, -apple-system, sans-serif;
+        `;
+        
+        const clusterText = document.createElement('div');
+        clusterText.innerHTML = `
+          <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">
+            ${cluster.count} Observations
+          </div>
+          <div style="font-size: 14px; color: #6b7280;">
+            Zoom in to see individual observations
+          </div>
+        `;
+        popupContent.appendChild(clusterText);
+
+        // Create popup
+        const popup = new maplibregl.Popup({
+          offset: 25,
+          closeButton: true,
+          closeOnClick: false
+        }).setDOMContent(popupContent);
+
+        // Add click handler to zoom in
+        markerEl.addEventListener('click', () => {
+          map.current?.flyTo({ 
+            center: [cluster.lng, cluster.lat], 
+            zoom: Math.min(currentZoom + 2, 15) 
+          });
+        });
+
+        // Create marker - use cluster coordinates
+        const marker = new maplibregl.Marker(markerEl)
+          .setLngLat([cluster.lng, cluster.lat])
+          .addTo(map.current);
+
+        marker.setPopup(popup);
+        markersRef.current.push(marker);
+      }
+
+      // Add hover effect
+      markerEl.addEventListener('mouseenter', () => {
+        markerEl.style.transform = 'scale(1.1)';
+      });
+      markerEl.addEventListener('mouseleave', () => {
+        markerEl.style.transform = 'scale(1)';
+      });
+    });
+  };
+
+  // Add heatmap to map
+  const addHeatmap = () => {
+    if (!map.current || observations.length === 0) return;
+    
+    clearMarkers();
+
+    // Create GeoJSON from observations
+    const geojson = {
+      type: 'FeatureCollection' as const,
+      features: observations.map((obs) => ({
+        type: 'Feature' as const,
+        geometry: {
+          type: 'Point' as const,
+          coordinates: [obs.lng, obs.lat],
+        },
+        properties: {
+          intensity: 1,
+        },
+      })),
+    };
+
+    // Add source
+    if (map.current.getSource('heatmap-source')) {
+      (map.current.getSource('heatmap-source') as maplibregl.GeoJSONSource).setData(geojson);
+    } else {
+      map.current.addSource('heatmap-source', {
+        type: 'geojson',
+        data: geojson,
+      });
+    }
+
+    // Add heatmap layer
+    if (!map.current.getLayer('heatmap-layer')) {
+      map.current.addLayer({
+        id: 'heatmap-layer',
+        type: 'heatmap',
+        source: 'heatmap-source',
+        maxzoom: 15,
+        paint: {
+          'heatmap-weight': {
+            property: 'intensity',
+            type: 'identity',
+          },
+          'heatmap-intensity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 0.5,
+            15, 2,
+          ],
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, 'rgba(33, 102, 172, 0)',
+            0.2, 'rgba(103, 169, 207, 0.5)',
+            0.4, 'rgba(209, 229, 240, 0.8)',
+            0.6, 'rgba(253, 219, 199, 0.9)',
+            0.8, 'rgba(239, 138, 98, 0.95)',
+            1, 'rgba(178, 24, 43, 1)',
+          ],
+          'heatmap-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 20,
+            15, 80,
+          ],
+          'heatmap-opacity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            7, 0.5,
+            15, 0.8,
+          ],
+        },
+      });
+    }
+  };
+
+  // Initialize map
   useEffect(() => {
     if (!mapContainer.current) {
       console.error('Map container not found');
@@ -46,16 +342,11 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
     
     if (map.current) return; // already initialized
 
-    // Debug container dimensions
-    const rect = mapContainer.current.getBoundingClientRect();
-    console.log('Map container dimensions:', rect.width, 'x', rect.height);
-
     try {
       console.log('Creating MapLibre instance...');
       
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        // Use CartoDB Positron style for better readability
         style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
         center: [-8.2439, 53.4129],
         zoom: 6.5,
@@ -66,162 +357,20 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
       map.current.on('load', () => {
         console.log('Map loaded successfully');
         setIsLoading(false);
-        // Ensure correct sizing when the map first loads
         map.current?.resize();
         
-        // Add clustered markers
-        if (observations.length > 0) {
-          const currentZoom = map.current.getZoom();
-          const precision = getClusteringPrecision(currentZoom);
-          const clusters = clusterObservations(observations, precision);
-          
-          console.log(`Clustering ${observations.length} observations into ${clusters.length} clusters with precision ${precision}`);
-          
-          clusters.forEach((cluster) => {
-            if (!map.current) return;
-
-            // Create cluster marker element
-            const markerEl = document.createElement('div');
-            markerEl.className = 'map-cluster-marker';
-            
-            if (cluster.count === 1) {
-              // Single observation - show thumbnail
-              const obs = cluster.observations[0];
-              markerEl.style.cssText = `
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                border: 3px solid white;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: ${getStatusColor(obs.status)};
-                transition: transform 0.2s ease;
-              `;
-
-              // Add thumbnail image
-              const img = document.createElement('img');
-              img.src = obs.photoUrl;
-              img.style.cssText = `
-                width: 34px;
-                height: 34px;
-                border-radius: 50%;
-                object-fit: cover;
-              `;
-              img.alt = 'Observation';
-              markerEl.appendChild(img);
-            } else {
-              // Multiple observations - show count circle
-              const size = Math.min(60, 30 + cluster.count * 2);
-              markerEl.style.cssText = `
-                width: ${size}px;
-                height: ${size}px;
-                border-radius: 50%;
-                border: 3px solid white;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: #10b981;
-                color: white;
-                font-weight: bold;
-                font-size: ${Math.min(16, 12 + cluster.count)}px;
-                transition: transform 0.2s ease;
-              `;
-              markerEl.textContent = cluster.count.toString();
-            }
-
-            // Add hover effect
-            markerEl.addEventListener('mouseenter', () => {
-              markerEl.style.transform = 'scale(1.1)';
-            });
-            markerEl.addEventListener('mouseleave', () => {
-              markerEl.style.transform = 'scale(1)';
-            });
-
-            // Create marker
-            const marker = new maplibregl.Marker(markerEl)
-              .setLngLat([obs.lng, obs.lat])
-              .addTo(map.current);
-
-            // Create popup content
-            const popupContent = document.createElement('div');
-            popupContent.style.cssText = `
-              padding: 12px;
-              min-width: 200px;
-              font-family: system-ui, -apple-system, sans-serif;
-            `;
-
-            // Add thumbnail
-            const popupImg = document.createElement('img');
-            popupImg.src = obs.photoUrl;
-            popupImg.style.cssText = `
-              width: 60px;
-              height: 60px;
-              border-radius: 8px;
-              object-fit: cover;
-              margin-bottom: 8px;
-              display: block;
-            `;
-            popupImg.alt = 'Observation';
-            popupContent.appendChild(popupImg);
-
-            // Add species name
-            const speciesName = document.createElement('div');
-            if (obs.identification?.latinName) {
-              speciesName.innerHTML = `
-                <div style="font-weight: 600; font-style: italic; color: #1f2937; margin-bottom: 2px;">
-                  ${obs.identification.latinName}
-                </div>
-                <div style="font-size: 14px; color: #6b7280;">
-                  ${obs.identification.commonEn || 'Unknown'}
-                </div>
-              `;
-            } else {
-              speciesName.innerHTML = `
-                <div style="font-weight: 600; color: #1f2937;">
-                  Needs Identification
-                </div>
-              `;
-            }
-            popupContent.appendChild(speciesName);
-
-            // Add status badge
-            const statusBadge = document.createElement('div');
-            statusBadge.style.cssText = `
-              display: inline-block;
-              padding: 4px 8px;
-              border-radius: 12px;
-              font-size: 12px;
-              font-weight: 500;
-              margin-top: 8px;
-              background: ${getStatusColor(obs.status)};
-              color: white;
-            `;
-            statusBadge.textContent = obs.status.replace('_', ' ');
-            popupContent.appendChild(statusBadge);
-
-            // Create popup
-            const popup = new maplibregl.Popup({
-              offset: 25,
-              closeButton: true,
-              closeOnClick: false
-            }).setDOMContent(popupContent);
-
-            // Add click handler to open observation page
-            markerEl.addEventListener('click', () => {
-              window.open(`/observation/${obs.id}`, '_blank');
-            });
-
-            // Add popup to marker
-            marker.setPopup(popup);
-          });
-          console.log(`Added ${observations.length} markers`);
+        // Initial render based on view mode
+        if (viewMode === 'heatmap') {
+          addHeatmap();
         } else {
-          console.log('No observations to display');
+          addMarkers();
+        }
+      });
+
+      map.current.on('zoomend', () => {
+        // Re-cluster markers when zoom changes
+        if (viewMode === 'markers' && map.current) {
+          addMarkers();
         }
       });
 
@@ -236,17 +385,28 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
     }
 
     return () => {
+      clearMarkers();
       map.current?.remove();
       map.current = null;
     };
-  }, [observations]);
+  }, []); // Only run once on mount
 
-  // Resize on mount and when container size changes (e.g., tab switch)
+  // Update visualization when view mode or observations change
+  useEffect(() => {
+    if (!map.current || isLoading) return;
+
+    if (viewMode === 'heatmap') {
+      addHeatmap();
+    } else {
+      addMarkers();
+    }
+  }, [viewMode, observations, isLoading]);
+
+  // Resize on mount and when container size changes
   useEffect(() => {
     const id = setInterval(() => {
       map.current?.resize();
     }, 500);
-    // Stop aggressive resizing after initial seconds
     const stop = setTimeout(() => clearInterval(id), 3000);
     return () => {
       clearInterval(id);
@@ -284,7 +444,7 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
         </div>
       )}
       
-      {observations.length === 0 && (
+      {observations.length === 0 && !isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/90 pointer-events-none">
           <div className="text-center">
             <p className="text-2xl mb-2">🍄</p>
@@ -293,28 +453,6 @@ export default function SimpleMap({ observations }: SimpleMapProps) {
           </div>
         </div>
       )}
-      
-      <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-3 text-xs pointer-events-auto">
-        <h3 className="font-semibold mb-2">Legend</h3>
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500" />
-            <span>Needs ID</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-amber-500" />
-            <span>Has candidates</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span>Consensus</span>
-          </div>
-        </div>
-        <div className="mt-2 pt-2 border-t text-[10px] text-gray-500">
-          <p>🔒 Privacy-first: Grid precision only</p>
-        </div>
-      </div>
     </div>
   );
 }
-
