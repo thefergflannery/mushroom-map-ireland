@@ -4,38 +4,37 @@
 
 @layer base {
   :root {
-    /* Modern Color Palette - Accessible & Nature-inspired */
-    --forest-900: 20 44 33;      /* Deep forest green - primary dark */
-    --forest-800: 25 55 41;      /* Dark green */
-    --forest-700: 34 87 64;      /* Primary green */
-    --forest-600: 42 108 79;     /* Medium green */
-    --forest-500: 52 168 83;     /* Bright green - primary */
-    --forest-400: 110 188 137;   /* Light green */
-    --forest-300: 163 210 178;   /* Pale green */
-    
-    --earth-900: 56 38 26;       /* Deep earth brown */
-    --earth-800: 92 64 51;       /* Dark brown */
-    --earth-700: 139 101 81;     /* Medium brown */
-    --earth-600: 181 142 120;    /* Light brown */
-    
-    --amber-600: 217 119 6;      /* Warm accent */
-    --amber-500: 245 158 11;     /* Bright amber */
-    
-    --sky-600: 2 132 199;        /* Cool accent */
-    --sky-500: 14 165 233;       /* Bright sky blue */
-    
-    /* Neutrals */
-    --slate-950: 2 6 23;         /* Almost black */
-    --slate-900: 15 23 42;       /* Very dark gray */
-    --slate-800: 30 41 59;       /* Dark gray */
-    --slate-700: 51 65 85;       /* Medium dark gray */
-    --slate-600: 71 85 105;      /* Medium gray */
-    --slate-500: 100 116 139;    /* Gray */
-    --slate-400: 148 163 184;    /* Light gray */
-    --slate-300: 203 213 225;    /* Very light gray */
-    --slate-200: 226 232 240;    /* Pale gray */
-    --slate-100: 241 245 249;    /* Off white */
-    --slate-50: 248 250 252;     /* Almost white */
+    /* Color palette — HSL channel values (h s% l%) for use with hsl(var(--token)) */
+    --forest-900: 153 37% 12%;
+    --forest-800: 152 38% 16%;
+    --forest-700: 154 44% 24%;
+    --forest-600: 154 44% 29%;
+    --forest-500: 158 64% 52%;
+    --forest-400: 156 72% 67%;
+    --forest-300: 142 77% 73%;
+
+    --earth-900: 24 37% 16%;
+    --earth-800: 19 29% 28%;
+    --earth-700: 21 26% 43%;
+    --earth-600: 22 29% 59%;
+
+    --amber-600: 32 95% 44%;
+    --amber-500: 38 92% 50%;
+
+    --sky-600: 200 98% 39%;
+    --sky-500: 199 89% 48%;
+
+    --slate-950: 222 47% 6%;
+    --slate-900: 222 47% 11%;
+    --slate-800: 217 33% 17%;
+    --slate-700: 215 25% 27%;
+    --slate-600: 215 19% 35%;
+    --slate-500: 215 16% 47%;
+    --slate-400: 215 20% 65%;
+    --slate-300: 213 27% 84%;
+    --slate-200: 214 32% 91%;
+    --slate-100: 214 32% 96%;
+    --slate-50:  210 40% 98%;
     
     /* Semantic colors */
     --background: 0 0% 100%;

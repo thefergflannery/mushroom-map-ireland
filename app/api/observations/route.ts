@@ -216,7 +216,7 @@ export async function POST(request: NextRequest) {
         notes: data.notes,
         privacyLevel: data.privacyLevel,
         accuracyM: data.accuracyM,
-        status: 'CONSENSUS', // Auto-accepted, moderators can reject if inappropriate
+        status: 'NEEDS_ID',
         observedAt: data.observedAt ? new Date(data.observedAt) : null,
       },
       include: {
