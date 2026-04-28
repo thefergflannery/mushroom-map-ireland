@@ -13,6 +13,7 @@ import { IdentificationForm } from '@/components/observation/identification-form
 import { CommentForm } from '@/components/observation/comment-form';
 import { ShareButton } from '@/components/observation/share-button';
 import SimpleMap from '@/components/map/simple-map';
+import { SafetyBanner } from '@/components/common/safety-banner';
 
 interface PageProps {
   params: { id: string };
@@ -177,6 +178,11 @@ export default async function ObservationPage({ params }: PageProps) {
         <section className="section-sm bg-white">
           <div className="container-modern max-w-6xl">
             <div className="grid lg:grid-cols-3 gap-12">
+              {/* Safety Banner */}
+              <div className="lg:col-span-3 mb-4">
+                <SafetyBanner />
+              </div>
+
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-8">
                 {/* Observation Info */}
